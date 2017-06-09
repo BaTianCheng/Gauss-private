@@ -1,14 +1,5 @@
 package com.httpproxy.test;
 
-import java.util.UUID;
-
-import org.bson.Document;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.httpproxy.dao.mongo.MongoDAO;
-import com.httpproxy.dispatcher.entity.RequestEntity;
-import com.httpproxy.dispatcher.entity.RequestOption;
 import com.httpproxy.dispatcher.service.RequestService;
 
 public class MongoTest {
