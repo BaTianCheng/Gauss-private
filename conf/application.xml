@@ -25,7 +25,7 @@
         </response>
         -->
         <services autoload="true"/>
-        <servlets path="/http" autoload="true" >
+        <servlets path="/esb" autoload="true" >
             <!--
             <resource-servlet>
                 <caches  limit="0"/>
