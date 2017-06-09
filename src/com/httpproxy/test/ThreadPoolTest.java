@@ -1,10 +1,8 @@
 package com.httpproxy.test;
 
-import com.google.common.util.concurrent.Monitor;
 import com.httpproxy.dispatcher.entity.RequestEntity;
 import com.httpproxy.dispatcher.runnable.MonitorRunnable;
 import com.httpproxy.dispatcher.service.RequestQueue;
-import com.httpproxy.dispatcher.service.ThreadPoolService;
 
 public class ThreadPoolTest {
 	

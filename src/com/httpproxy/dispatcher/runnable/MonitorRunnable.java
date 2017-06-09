@@ -25,7 +25,6 @@ public class MonitorRunnable implements Runnable{
 			
 			try {
 				Thread.sleep(500);
-				System.out.println(ThreadPoolService.getActiveCount());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

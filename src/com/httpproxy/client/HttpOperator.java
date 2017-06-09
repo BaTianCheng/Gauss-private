@@ -1,7 +1,6 @@
 package com.httpproxy.client;
 
 import java.util.Map;
-import java.util.Random;
 
 import com.httpproxy.client.common.HttpRequest;
 import com.httpproxy.client.common.HttpResponse;
@@ -12,20 +11,13 @@ import com.httpproxy.dispatcher.entity.RequestEntity;
 public class HttpOperator {
 	
 	/**
-	 * 构建HTTO请求
+	 * 构建HTTP请求
 	 * @param requestEntity
 	 * @return
 	 */
-	public static String buildRequest(RequestEntity requestEntity){
-		Random rand = new Random();
-		try {
-			Thread.sleep(rand.nextInt(10000));
-			System.out.println("END");
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public static String buildRequest(RequestEntity requestEntity) throws Exception{
+		return buildRequest(requestEntity.getParams(),requestEntity.getRequestOption().getHead(),requestEntity.getUrl(),
+				requestEntity.getRequestOption().getMethod(),requestEntity.getRequestOption().getCharset(),requestEntity.getRequestOption().isBody());
 	}
 	
 	/**
@@ -50,7 +42,7 @@ public class HttpOperator {
         if (response == null) {
             return null;
         }
-        
+
         String strResult = response.getStringResult();
 
         return strResult;

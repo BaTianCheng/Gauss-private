@@ -2,6 +2,8 @@ package com.httpproxy.dispatcher.entity;
 
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+
 /**
  * 请求业务实例
  * @author wicks
@@ -11,6 +13,8 @@ public class RequestEntity {
 	private String questId;
 	
 	private String url;
+
+	private String identification;
 	
 	private String status;
 	
@@ -20,9 +24,13 @@ public class RequestEntity {
 	
 	private long requestTime;
 	
-	private long enqueueTime;
+	private long excuteTime;
+	
+	private long responseTime;
 	
 	private String requestIP;
+	
+	private String result;
 
 	public String getQuestId() {
 		return questId;
@@ -38,6 +46,14 @@ public class RequestEntity {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	
+	public String getIdentification() {
+		return identification;
+	}
+
+	public void setIdentification(String identification) {
+		this.identification = identification;
 	}
 
 	public String getStatus() {
@@ -72,12 +88,20 @@ public class RequestEntity {
 		this.requestTime = requestTime;
 	}
 
-	public long getEnqueueTime() {
-		return enqueueTime;
+	public long getExcuteTime() {
+		return excuteTime;
 	}
 
-	public void setEnqueueTime(long enqueueTime) {
-		this.enqueueTime = enqueueTime;
+	public void setExcuteTime(long excuteTime) {
+		this.excuteTime = excuteTime;
+	}
+
+	public long getResponseTime() {
+		return responseTime;
+	}
+
+	public void setResponseTime(long responseTime) {
+		this.responseTime = responseTime;
 	}
 
 	public String getRequestIP() {
@@ -86,6 +110,19 @@ public class RequestEntity {
 
 	public void setRequestIP(String requestIP) {
 		this.requestIP = requestIP;
+	}
+	
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
+	@Override
+	public String toString(){
+		return JSON.toJSONString(this);
 	}
 
 }

@@ -2,6 +2,8 @@ package com.httpproxy.dispatcher.entity;
 
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+
 public class RequestOption {
 	
 	private String charset;
@@ -12,7 +14,7 @@ public class RequestOption {
 	
 	private boolean isBody;
 	
-	private long timeOut;
+	private Integer timeOut;
 	
 	private String businessId;
 
@@ -48,11 +50,11 @@ public class RequestOption {
 		this.isBody = isBody;
 	}
 
-	public long getTimeOut() {
+	public Integer getTimeOut() {
 		return timeOut;
 	}
 
-	public void setTimeOut(long timeOut) {
+	public void setTimeOut(Integer timeOut) {
 		this.timeOut = timeOut;
 	}
 
@@ -64,4 +66,9 @@ public class RequestOption {
 		this.businessId = businessId;
 	}
 
+	@Override
+	public String toString(){
+		return JSON.toJSONString(this);
+	}
+	
 }

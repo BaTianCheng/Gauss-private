@@ -1,7 +1,10 @@
 package com.httpproxy.common.util;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.commons.httpclient.NameValuePair;
 
@@ -70,8 +73,8 @@ public class StringUtils {
      */
     public static String[] split(String strValue,String strSeparator)
     {
-        java.util.ArrayList vTemp=new java.util.ArrayList();
-        java.util.StringTokenizer st=new java.util.StringTokenizer(strValue,strSeparator);
+        List<String> vTemp=new ArrayList<String>();
+        StringTokenizer st=new StringTokenizer(strValue,strSeparator);
         while(st.hasMoreElements())
         {
             vTemp.add(st.nextToken());
