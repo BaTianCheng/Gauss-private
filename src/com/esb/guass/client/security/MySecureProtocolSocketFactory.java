@@ -15,7 +15,7 @@ import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
  
 /**
- * SSLЭ��
+ * SSL加密
  * @author wicks
  */
 public class MySecureProtocolSocketFactory implements SecureProtocolSocketFactory {

@@ -10,6 +10,7 @@ import org.redkale.net.http.HttpResponse;
 import org.redkale.net.http.WebServlet;
 
 import com.alibaba.fastjson.JSON;
+import com.esb.guass.common.constant.HttpConstant;
 import com.esb.guass.common.constant.StatusConstant;
 import com.esb.guass.dispatcher.entity.RequestEntity;
 import com.esb.guass.dispatcher.entity.RequestOption;
@@ -54,13 +55,13 @@ public class HttpProxyServlet extends BaseSerlvet {
     		} 
     		
     		if(Strings.isNullOrEmpty(req.getParameter("charset"))){
-    			option.setCharset("UTF8");
+    			option.setCharset(HttpConstant.DEFAULT_CHARSET);
     		} else {
     			option.setCharset(req.getParameter("charset"));
     		}
     		
     		if(Strings.isNullOrEmpty(req.getParameter("method"))){
-    			option.setMethod("POST");
+    			option.setMethod(HttpConstant.DEFAULT_METHOD);
     		} else {
     			option.setMethod(req.getParameter("method"));
     		}
@@ -80,6 +81,7 @@ public class HttpProxyServlet extends BaseSerlvet {
     		requestEntity.setRequestIP(req.getHost());
     		requestEntity.setRequestTime(req.getCreatetime());
     		requestEntity.setRequestOption(option);
+    		requestEntity.setStatus(StatusConstant.CODE_1201_MSG);
     		RequestQueue.add(requestEntity);
     		RequestService.insert(requestEntity);
     		this.writeSuccessResult(resp, null, StatusConstant.CODE_200_MSG, requestEntity.getQuestId());

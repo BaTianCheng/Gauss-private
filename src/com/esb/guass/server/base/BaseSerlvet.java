@@ -43,7 +43,9 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
     @Resource(name = "SERVER_ROOT")
     protected File webroot;
 
-    //前置拦截器
+    /**
+     * 前置拦截器
+     */
     @Override
     public void preExecute(final HttpRequest request, final HttpResponse response, HttpServlet next) throws IOException {
     	//记录所有请求
@@ -54,7 +56,9 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
         next.execute(request, response);
     }
 
-    //鉴权方法，目前不鉴权
+    /**
+     * 鉴权方法，目前不鉴权
+     */
     @Override
     public void authenticate(int moduleid, int actionid, HttpRequest request, HttpResponse response, HttpServlet next) throws IOException {
         next.execute(request, response);

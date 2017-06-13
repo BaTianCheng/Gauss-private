@@ -27,7 +27,7 @@ public class HttpResponse {
     /**
      * 默认的请求编码方式
      */
-    private String             charset           = "UTF8";
+    private String charset = "UTF8";
 
     public String getCharset() {
 		return charset;

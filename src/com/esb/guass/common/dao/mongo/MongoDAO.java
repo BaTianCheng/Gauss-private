@@ -1,4 +1,4 @@
-package com.esb.guass.dao.mongo;
+package com.esb.guass.common.dao.mongo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import com.esb.guass.common.constant.MongoConstant;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
@@ -30,20 +31,20 @@ public class MongoDAO{
         if (mongoClient == null)
         {
             MongoClientOptions.Builder buide = new MongoClientOptions.Builder();
-            buide.connectionsPerHost(50);// 与目标数据库可以建立的最大链接数
-            buide.connectTimeout(1000 * 60 * 20);// 与数据库建立链接的超时时间
-            buide.maxWaitTime(100 * 60 * 5);// 一个线程成功获取到一个可用数据库之前的最大等待时间
-            buide.threadsAllowedToBlockForConnectionMultiplier(100);
+            buide.connectionsPerHost(MongoConstant.MAX_CONNECTIONS);
+            buide.connectTimeout(MongoConstant.CONNECTION_TIMEOUT);
+            buide.maxWaitTime(MongoConstant.THREAD_MAX_WAITTIME);
+            buide.threadsAllowedToBlockForConnectionMultiplier(MongoConstant.THREAD_MAX_WAITNUM);
             buide.maxConnectionIdleTime(0);
             buide.maxConnectionLifeTime(0);
             buide.socketTimeout(0);
             buide.socketKeepAlive(true);
             MongoClientOptions myOptions = buide.build();
             
-            MongoCredential credential = MongoCredential.createScramSha1Credential("jinying", "admin", "jinying".toCharArray());  
+            MongoCredential credential = MongoCredential.createScramSha1Credential(MongoConstant.USERNAME, "admin", MongoConstant.PASSWORD.toCharArray());  
             List<MongoCredential> credentials = new ArrayList<MongoCredential>();  
             credentials.add(credential);
-            ServerAddress serverAddress = new ServerAddress("localhost",27017);  
+            ServerAddress serverAddress = new ServerAddress(MongoConstant.IP, MongoConstant.PORT);  
             
             try
             {
@@ -142,7 +143,7 @@ public class MongoDAO{
         }
         return results;  
     } 
-  
+    
     /**
      * 按条件查询
      * @param dbName
@@ -161,7 +162,24 @@ public class MongoDAO{
         return results;  
     }  
   
-
+    /**
+     * 按条件查询
+     * @param dbName
+     * @param collectionName
+     * @param filter
+     * @return
+     */
+    public List<Document> findBy(String dbName, String collectionName, Bson filter,  int pageNum, int pageSize) {
+        List<Document> results = new ArrayList<Document>();
+        MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
+        FindIterable<Document> iterables = dbCollection.find(filter).skip((pageNum-1)*pageSize);
+        MongoCursor<Document> cursor = iterables.iterator();  
+        while (cursor.hasNext()) {  
+            results.add(cursor.next());  
+        }  
+        return results;  
+    }  
+    
     /**
      * 更新
      * @param dbName

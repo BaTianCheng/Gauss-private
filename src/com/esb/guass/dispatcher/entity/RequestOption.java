@@ -4,18 +4,40 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 
+/**
+ * 请求选项
+ * @author wicks
+ */
 public class RequestOption {
 	
+	/**
+	 * 字符集
+	 */
 	private String charset;
 	
+	/**
+	 * 方法
+	 */
 	private String method;
 	
+	/**
+	 * 头部数据
+	 */
 	private Map<String, String> head;
 	
+	/**
+	 * 是否体传递
+	 */
 	private boolean isBody;
 	
+	/**
+	 * 超时时间
+	 */
 	private Integer timeOut;
 	
+	/**
+	 * 业务编号
+	 */
 	private String businessId;
 
 	public String getCharset() {

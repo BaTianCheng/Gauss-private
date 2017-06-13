@@ -1,14 +1,17 @@
 package com.esb.guass.dispatcher.service;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.esb.guass.dao.mongo.MongoDAO;
+import com.esb.guass.common.dao.mongo.MongoDAO;
 import com.esb.guass.dispatcher.entity.RequestEntity;
+import com.mongodb.BasicDBObject;
 
 /**
  * 请求服务
@@ -16,7 +19,7 @@ import com.esb.guass.dispatcher.entity.RequestEntity;
  */
 public class RequestService {
 
-	private static final String dbName = "db_ebs";
+	private static final String dbName = "db_esb";
 	
 	private static final String collectionName = "tb_request";
 	
@@ -57,7 +60,7 @@ public class RequestService {
 	/**
 	 * 查询全部
 	 */
-	public static List<RequestEntity> find( int pageNum, int pageSize){
+	public static List<RequestEntity> findAll(int pageNum, int pageSize){
 		List<Document> docs = MongoDAO.getInstance().findAll(dbName, collectionName, pageNum, pageSize);
 		return JSONArray.parseArray(JSON.toJSONString(docs), RequestEntity.class);
 	}
@@ -67,6 +70,20 @@ public class RequestService {
 	 */
 	public static List<RequestEntity> findAll(){
 		List<Document> docs = MongoDAO.getInstance().findAll(dbName, collectionName);
+		return JSONArray.parseArray(JSON.toJSONString(docs), RequestEntity.class);
+	}
+	
+	/**
+	 * 按照时间进行查询
+	 * @param beginTime
+	 * @param endTime
+	 * @return
+	 */
+	public static  List<RequestEntity> findByTime(long beginTime, long endTime, int pageNum, int pageSize){
+		Bson filterA = new BasicDBObject("requestTime", new BasicDBObject("$gte", beginTime));
+		Bson filterB = new BasicDBObject("requestTime", new BasicDBObject("$lte", endTime));
+		Bson filter = new BasicDBObject("$and", Arrays.asList(filterA, filterB));
+		List<Document> docs = MongoDAO.getInstance().findBy(dbName, collectionName, filter, pageNum, pageSize);
 		return JSONArray.parseArray(JSON.toJSONString(docs), RequestEntity.class);
 	}
 	

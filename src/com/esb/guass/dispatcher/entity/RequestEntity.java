@@ -10,26 +10,59 @@ import com.alibaba.fastjson.JSON;
  */
 public class RequestEntity {
 	
+	/**
+	 * 任务编号
+	 */
 	private String questId;
 	
+	/**
+	 * 请求路径
+	 */
 	private String url;
 
+	/**
+	 * 身份标记
+	 */
 	private String identification;
 	
+	/**
+	 * 状态
+	 */
 	private String status;
 	
+	/**
+	 * 请求选项
+	 */
 	private RequestOption requestOption;
 	
+	/**
+	 * 参数
+	 */
 	private Map<String, String> params;
 	
+	/**
+	 * 请求时间
+	 */
 	private long requestTime;
 	
+	/**
+	 * 执行时间
+	 */
 	private long excuteTime;
 	
+	/**
+	 * 响应时间
+	 */
 	private long responseTime;
 	
+	/**
+	 * 请求IP
+	 */
 	private String requestIP;
 	
+	/**
+	 * 结果字符串
+	 */
 	private String result;
 
 	public String getQuestId() {

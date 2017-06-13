@@ -8,6 +8,10 @@ import com.esb.guass.client.entity.HttpResultType;
 import com.esb.guass.common.util.StringUtils;
 import com.esb.guass.dispatcher.entity.RequestEntity;
 
+/**
+ * HTTP操作服务类
+ * @author wicks
+ */
 public class HttpOperatorService {
 	
 	/**

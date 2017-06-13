@@ -19,6 +19,8 @@ import com.esb.guass.client.entity.HttpRequest;
 import com.esb.guass.client.entity.HttpResponse;
 import com.esb.guass.client.entity.HttpResultType;
 import com.esb.guass.client.security.MySecureProtocolSocketFactory;
+import com.esb.guass.common.constant.HttpConstant;
+import com.google.common.base.Strings;
 
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.FilePartSource;
@@ -42,34 +44,15 @@ import java.util.Map.Entry;
  */
 public class HttpProtocolHandler {
 
-    private static String              DEFAULT_CHARSET                     = "UTF8";
-
-    /** 连接超时时间，由bean factory设置，缺省为8秒钟 */
-    private int                        defaultConnectionTimeout            = 8000;
-
-    /** 回应超时时间, 由bean factory设置，缺省为30秒钟，现改为60秒 */
-    private int                        defaultSoTimeout                    = 60000;
-
-    /** 闲置连接超时时间, 由bean factory设置，缺省为60秒钟 */
-    private int                        defaultIdleConnTimeout              = 60000;
-
-    private int                        defaultMaxConnPerHost               = 30;
-
-    private int                        defaultMaxTotalConn                 = 80;
-
-    /** 默认等待HttpConnectionManager返回连接超时（只有在达到最大连接数时起作用）：1秒*/
-    private static final long          defaultHttpConnectionManagerTimeout = 3 * 1000;
-
     /**
      * HTTP连接管理器，该连接管理器必须是线程安全的.
      */
-    private HttpConnectionManager      connectionManager;
+    private HttpConnectionManager connectionManager;
 
-    private static HttpProtocolHandler httpProtocolHandler                 = new HttpProtocolHandler();
+    private static HttpProtocolHandler httpProtocolHandler = new HttpProtocolHandler();
 
     /**
-     * 工厂方法
-     * 
+     * 工厂方法s
      * @return
      */
     public static HttpProtocolHandler getInstance() {
@@ -82,25 +65,26 @@ public class HttpProtocolHandler {
     private HttpProtocolHandler() {
         // 创建一个线程安全的HTTP连接池
         connectionManager = new MultiThreadedHttpConnectionManager();
-        connectionManager.getParams().setDefaultMaxConnectionsPerHost(defaultMaxConnPerHost);
-        connectionManager.getParams().setMaxTotalConnections(defaultMaxTotalConn);
+        connectionManager.getParams().setDefaultMaxConnectionsPerHost(HttpConstant.defaultMaxConnPerHost);
+        connectionManager.getParams().setMaxTotalConnections(HttpConstant.defaultMaxTotalConn);
 
         IdleConnectionTimeoutThread ict = new IdleConnectionTimeoutThread();
         ict.addConnectionManager(connectionManager);
-        ict.setConnectionTimeout(defaultIdleConnTimeout);
+        ict.setConnectionTimeout(HttpConstant.defaultIdleConnTimeout);
 
         ict.start();
     }
 
     /**
      * 执行Http请求/执行Https请求(根据协议头自动识别)
-     * 
-     * @param request 请求数据
-     * @param strParaFileName 文件类型的参数名
+     * @param request 请求
+     * @param strParaFileName 文件类型参数
      * @param strFilePath 文件路径
-     * @param header 报文头
-     * @return 
-     * @throws HttpException, IOException 
+     * @param headers 报文头
+     * @param isBody 是否体传值
+     * @return 响应
+     * @throws HttpException
+     * @throws IOException
      */
     @SuppressWarnings("deprecation")
 	public HttpResponse execute(HttpRequest request, String strParaFileName, String strFilePath, Map<String, String> headers, boolean isBody) throws HttpException, IOException {
@@ -115,35 +99,34 @@ public class HttpProtocolHandler {
     	httpclient = new HttpClient(connectionManager);
 
         // 设置连接超时
-        int connectionTimeout = defaultConnectionTimeout;
+        int connectionTimeout = HttpConstant.defaultConnectionTimeout;
         if (request.getConnectionTimeout() > 0) {
             connectionTimeout = request.getConnectionTimeout();
         }
         httpclient.getHttpConnectionManager().getParams().setConnectionTimeout(connectionTimeout);
 
         // 设置回应超时
-        int soTimeout = defaultSoTimeout;
+        int soTimeout = HttpConstant.defaultSoTimeout;
         if (request.getTimeout() > 0) {
             soTimeout = request.getTimeout();
         }
         httpclient.getHttpConnectionManager().getParams().setSoTimeout(soTimeout);
 
         // 设置等待ConnectionManager释放connection的时间
-        httpclient.getParams().setConnectionManagerTimeout(defaultHttpConnectionManagerTimeout);
+        httpclient.getParams().setConnectionManagerTimeout(HttpConstant.defaultHttpConnectionManagerTimeout);
 
         //设置字符集
         String charset = request.getCharset();
-        charset = charset == null ? DEFAULT_CHARSET : charset;
+        charset = charset == null ? HttpConstant.DEFAULT_CHARSET : charset;
         HttpMethod method = null;
 
         //get模式且不带上传文件
+        //parseNotifyConfig会保证使用GET方法时，request一定使用QueryString
         if (request.getMethod().equals(HttpRequest.METHOD_GET)) {
             method = new GetMethod(request.getUrl());
             method.getParams().setCredentialCharset(charset);
-
-            // parseNotifyConfig会保证使用GET方法时，request一定使用QueryString
             method.setQueryString(request.getQueryString());
-        } else if(strParaFileName.equals("") && strFilePath.equals("")) {
+        } else if(Strings.isNullOrEmpty(strParaFileName)&&Strings.isNullOrEmpty(strFilePath)) {
         	//post模式且不带上传文件
             method = new PostMethod(request.getUrl());
             if(isBody){
@@ -153,7 +136,6 @@ public class HttpProtocolHandler {
                 		obj.put(param.getName(),param.getValue());
                 	}
                 }
-                
                 ((PostMethod) method).setRequestBody(obj.toString());
                 method.addRequestHeader("Content-Type", "application/json; text/html; charset=" + charset);
             } else {
@@ -168,10 +150,7 @@ public class HttpProtocolHandler {
             for (int i = 0; i < request.getParameters().length; i++) {
             	parts.add(new StringPart(request.getParameters()[i].getName(), request.getParameters()[i].getValue(), charset));
             }
-            //增加文件参数，strParaFileName是参数名，使用本地文件
             parts.add(new FilePart(strParaFileName, new FilePartSource(new File(strFilePath))));
-            
-            // 设置请求体
             ((PostMethod) method).setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[0]), new HttpMethodParams()));
         }
 
