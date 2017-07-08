@@ -6,6 +6,8 @@ import com.esb.guass.dispatcher.service.RequestQueue;
 
 public class ThreadPoolTest {
 	
+	//http://localhost:16060/esb/proxys/request?url=http://localhost:16060/esb/manger/status/get&data={}&identification=a&getResultData=1
+	
 	public static void main(String[] args) {
 		/*
 		for(int i=0;i<10;i++){

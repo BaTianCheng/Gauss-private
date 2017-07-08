@@ -11,7 +11,7 @@ import org.redkale.net.http.WebServlet;
 import com.esb.guass.dispatcher.service.RequestQueue;
 import com.esb.guass.server.base.BaseSerlvet;
 
-@WebServlet(value = {"/manger/*"}, comment = "Htpp代理服务")
+@WebServlet(value = {"/manger/*"}, comment = "ESB管理")
 public class MangerServlert extends BaseSerlvet {
 	
     /**
