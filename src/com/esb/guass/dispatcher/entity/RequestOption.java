@@ -3,6 +3,7 @@ package com.esb.guass.dispatcher.entity;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.esb.guass.common.constant.HttpConstant;
 
 /**
  * 请求选项
@@ -13,12 +14,12 @@ public class RequestOption {
 	/**
 	 * 字符集
 	 */
-	private String charset;
+	private String charset = HttpConstant.DEFAULT_CHARSET;
 	
 	/**
 	 * 方法
 	 */
-	private String method;
+	private String method = HttpConstant.DEFAULT_METHOD;
 	
 	/**
 	 * 头部数据
@@ -28,12 +29,12 @@ public class RequestOption {
 	/**
 	 * 是否体传递
 	 */
-	private boolean isBody;
+	private boolean isBody = false;
 	
 	/**
 	 * 超时时间
 	 */
-	private Integer timeOut;
+	private Integer timeOut = HttpConstant.defaultSoTimeout;
 	
 	/**
 	 * 业务编号

@@ -10,14 +10,34 @@ import com.alibaba.fastjson.JSON;
  */
 public class ServiceEntity {
 	
+	/**
+	 * 服务名称
+	 */
 	private String serviceName;
 	
+	/**
+	 * 映射路径
+	 */
 	private String mapUrl;
 	
+	/**
+	 * 异步标志
+	 */
+	private boolean async;
+	
+	/**
+	 * 请求选项
+	 */
 	private RequestOption requestOption;
 	
+	/**
+	 * 参数列表
+	 */
 	private List<String> params;
 	
+	/**
+	 * 必填参数列表
+	 */
 	private List<String> requiredParams;
 
 	public String getServiceName() {
@@ -34,6 +54,14 @@ public class ServiceEntity {
 
 	public void setMapUrl(String mapUrl) {
 		this.mapUrl = mapUrl;
+	}
+
+	public boolean isAsync() {
+		return async;
+	}
+
+	public void setAsync(boolean async) {
+		this.async = async;
 	}
 
 	public RequestOption getRequestOption() {

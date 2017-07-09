@@ -10,10 +10,7 @@ import org.redkale.net.http.HttpResponse;
 import org.redkale.net.http.WebServlet;
 
 import com.alibaba.fastjson.JSON;
-import com.esb.guass.common.constant.ConfigConstant;
-import com.esb.guass.common.constant.HttpConstant;
 import com.esb.guass.common.constant.StatusConstant;
-import com.esb.guass.common.util.DateTimeUtils;
 import com.esb.guass.dispatcher.entity.RequestEntity;
 import com.esb.guass.dispatcher.entity.RequestOption;
 import com.esb.guass.dispatcher.service.RequestQueue;
@@ -37,81 +34,91 @@ public class HttpProxyServlet extends BaseSerlvet {
     @AuthIgnore
     @WebMapping(url = "/proxys/request", comment = "HTTP代理发送请求服务")
     @WebParam(name = "url", type = String.class, comment = "请求转发的URL")
-    @WebParam(name = "data", type = String.class, comment = "请求转发的数据")
     @WebParam(name = "identification", type = String.class, comment = "身份识别码")
     public void request(HttpRequest req, HttpResponse resp) throws IOException {
-    	if(Strings.isNullOrEmpty(req.getParameter("url")) || Strings.isNullOrEmpty(req.getParameter("data")) || Strings.isNullOrEmpty(req.getParameter("identification") )){
+    	if(Strings.isNullOrEmpty(req.getParameter("url")) || Strings.isNullOrEmpty(req.getParameter("identification") )){
     		this.writeErrorResult(resp, StatusConstant.CODE_400, StatusConstant.CODE_400_MSG, null);
     	} else {
+    		//参数解析
     		RequestEntity requestEntity = new RequestEntity();
-    		RequestOption option = new RequestOption();
-    		requestEntity.setQuestId(UUID.randomUUID().toString());
-    		requestEntity.setUrl(req.getParameter("url"));
-    		requestEntity.setIdentification(req.getParameter("identification"));
-    		@SuppressWarnings("unchecked")
-			Map<String, String> params = JSON.parseObject(req.getParameter("data"), HashMap.class);
-    		requestEntity.setParams(params);
-    		
-    		if(!Strings.isNullOrEmpty(req.getParameter("businessId"))){
-    			option.setBusinessId("businessId");
-    		} 
-    		
-    		if(Strings.isNullOrEmpty(req.getParameter("charset"))){
-    			option.setCharset(HttpConstant.DEFAULT_CHARSET);
-    		} else {
-    			option.setCharset(req.getParameter("charset"));
+    		try{
+	    		requestEntity.setQuestId(UUID.randomUUID().toString());
+	    		requestEntity.setUrl(req.getParameter("url"));
+	    		requestEntity.setIdentification(req.getParameter("identification"));
+	        	if(!Strings.isNullOrEmpty(req.getParameter("data"))){
+	    			@SuppressWarnings("unchecked")
+	    			Map<String, String> params = JSON.parseObject(req.getParameter("data"), HashMap.class);
+	        		requestEntity.setParams(params);
+	    		}
+	        	if(!Strings.isNullOrEmpty(req.getParameter("getResultData"))){
+	        		requestEntity.setAsync(Boolean.valueOf(req.getParameter("getResultData")));
+	        	}
+	    		requestEntity.setRequestIP(req.getHost());
+	    		requestEntity.setRequestTime(req.getCreatetime());
+	    		requestEntity.setRequestOption(parseRequestOption(req));
+	    		requestEntity.setStatus(StatusConstant.CODE_1201);
     		}
-    		
-    		if(Strings.isNullOrEmpty(req.getParameter("method"))){
-    			option.setMethod(HttpConstant.DEFAULT_METHOD);
-    		} else {
-    			option.setMethod(req.getParameter("method"));
+    		catch(Exception ex){
+    			this.writeErrorResult(resp, StatusConstant.CODE_400, StatusConstant.CODE_400_MSG, ex.toString());
     		}
-    		
-    		option.setBody(req.getBooleanParameter("isbody", false));
-
-    		if(!Strings.isNullOrEmpty(req.getParameter("id"))){
-    			option.setBusinessId(req.getParameter("id"));
-    		}
-    		
-    		if(!Strings.isNullOrEmpty(req.getParameter("head"))){
-    			@SuppressWarnings("unchecked")
-    			Map<String, String> head = JSON.parseObject(req.getParameter("head"), HashMap.class);
-        		option.setHead(head);
-    		}
-    		
-    		requestEntity.setRequestIP(req.getHost());
-    		requestEntity.setRequestTime(req.getCreatetime());
-    		requestEntity.setRequestOption(option);
-    		requestEntity.setStatus(StatusConstant.CODE_1201_MSG);
     		RequestQueue.add(requestEntity);
     		RequestService.insert(requestEntity);
     		
     		//判断是否立刻返回结果
-    		if(Strings.isNullOrEmpty(req.getParameter("getResultData"))){
+    		if(requestEntity.isAsync()){
     			this.writeSuccessResult(resp, null, StatusConstant.CODE_200_MSG, requestEntity.getQuestId());
     		} else {
-    			int beiginTime = DateTimeUtils.getCurrentTimeStamp();
-    			while((beiginTime-DateTimeUtils.getCurrentTimeStamp()) < ConfigConstant.RETURNRESULTDATA_MAXTIME){
-    				try {
-						Thread.sleep(ConfigConstant.RETURNRESULTDATA_INTERVAL);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						break;
-					}
-    				RequestEntity entity = RequestService.find(requestEntity.getQuestId());
-    				if(entity.getStatus().equals(StatusConstant.CODE_1203)){
-    					this.writeSuccessResult(resp, entity.getResult(), StatusConstant.CODE_200_MSG, entity.getQuestId());
-    					return;
-    				}
-    				
+    			RequestEntity entity = getSyncResult(requestEntity.getQuestId());
+    			if(entity == null){
+    				this.writeErrorResult(resp, StatusConstant.CODE_500, StatusConstant.CODE_500_MSG, requestEntity);
+    			}else if(entity.getStatus().equals(StatusConstant.CODE_1203)){
+    				this.writeSuccessResult(resp, entity.getResult(), StatusConstant.CODE_200_MSG, entity.getQuestId());
+    			} else {
+    				this.writeSuccessResult(resp, null, StatusConstant.CODE_201_MSG, requestEntity.getQuestId());
     			}
-    			this.writeSuccessResult(resp, null, StatusConstant.CODE_200_MSG, requestEntity.getQuestId());
     		}
-    		
-    		
-    		
     	}
+    }
+    
+    /**
+     * 解析请求选项
+     * @param req
+     * @return
+     */
+    public RequestOption parseRequestOption(HttpRequest req)
+    {
+    	RequestOption option = new RequestOption();
+		
+		if(!Strings.isNullOrEmpty(req.getParameter("businessId"))){
+			option.setBusinessId("businessId");
+		} 
+		
+		if(!Strings.isNullOrEmpty(req.getParameter("charset"))){
+			option.setCharset(req.getParameter("charset"));
+		}
+		
+		if(!Strings.isNullOrEmpty(req.getParameter("method"))){
+			option.setMethod(req.getParameter("method"));
+		}
+		
+		if(!Strings.isNullOrEmpty(req.getParameter("isbody"))){
+			try{
+			option.setBody(Boolean.valueOf(req.getParameter("isbody")));
+			}
+			catch(Exception ex){}
+		}
+
+		if(!Strings.isNullOrEmpty(req.getParameter("id"))){
+			option.setBusinessId(req.getParameter("id"));
+		}
+		
+		if(!Strings.isNullOrEmpty(req.getParameter("head"))){
+			@SuppressWarnings("unchecked")
+			Map<String, String> head = JSON.parseObject(req.getParameter("head"), HashMap.class);
+    		option.setHead(head);
+		}
+		
+		return option;
     }
     
 }

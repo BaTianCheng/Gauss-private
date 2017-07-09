@@ -13,7 +13,11 @@ import org.redkale.net.http.HttpRequest;
 import org.redkale.net.http.HttpResponse;
 import org.redkale.net.http.HttpServlet;
 
+import com.esb.guass.common.constant.ConfigConstant;
 import com.esb.guass.common.constant.StatusConstant;
+import com.esb.guass.common.util.DateTimeUtils;
+import com.esb.guass.dispatcher.entity.RequestEntity;
+import com.esb.guass.dispatcher.service.RequestService;
 import com.esb.guass.server.entity.ResponseResult;
 
 /**
@@ -109,5 +113,27 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
     	result.setData(data);
     	resp.addHeader("Access-Control-Allow-Origin", "*");
     	resp.finishJson(result);
+    }
+    
+    /**
+     * 同步获取结果
+     * @param requestEntity
+     * @return
+     */
+    public RequestEntity getSyncResult(String questId){
+    	RequestEntity entity = null;
+    	int beiginTime = DateTimeUtils.getCurrentTimeStamp();
+		while((beiginTime-DateTimeUtils.getCurrentTimeStamp()) < ConfigConstant.RETURNRESULTDATA_MAXTIME){
+			try {
+				Thread.sleep(ConfigConstant.RETURNRESULTDATA_INTERVAL);
+			} catch (InterruptedException e) {
+				break;
+			}
+			entity = RequestService.find(questId);
+			if(entity.getStatus().equals(StatusConstant.CODE_1203)){
+				return entity;
+			}
+		}
+		return entity;
     }
 }

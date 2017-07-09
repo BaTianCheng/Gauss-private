@@ -26,6 +26,11 @@ public class RequestEntity {
 	private String identification;
 	
 	/**
+	 * 异步标志
+	 */
+	private boolean async = true;
+	
+	/**
 	 * 状态
 	 */
 	private String status;
@@ -87,6 +92,14 @@ public class RequestEntity {
 
 	public void setIdentification(String identification) {
 		this.identification = identification;
+	}
+
+	public boolean isAsync() {
+		return async;
+	}
+
+	public void setAsync(boolean async) {
+		this.async = async;
 	}
 
 	public String getStatus() {
