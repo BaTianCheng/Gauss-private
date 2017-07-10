@@ -8,6 +8,10 @@ import com.alibaba.fastjson.JSON;
  * 服务实体类
  * @author wicks
  */
+/**
+ * 
+ * @author wicks
+ */
 public class ServiceEntity {
 	
 	/**
@@ -23,7 +27,7 @@ public class ServiceEntity {
 	/**
 	 * 异步标志
 	 */
-	private boolean async;
+	private boolean async = true;
 	
 	/**
 	 * 请求选项
@@ -39,6 +43,12 @@ public class ServiceEntity {
 	 * 必填参数列表
 	 */
 	private List<String> requiredParams;
+	
+	/**
+	 * 头部参数列表
+	 */
+	private List<String> headParams;
+	
 
 	public String getServiceName() {
 		return serviceName;
@@ -88,6 +98,14 @@ public class ServiceEntity {
 		this.requiredParams = requiredParams;
 	}
 	
+	public List<String> getHeadParams() {
+		return headParams;
+	}
+
+	public void setHeadParams(List<String> headParams) {
+		this.headParams = headParams;
+	}
+
 	@Override
 	public String toString(){
 		return JSON.toJSONString(this);

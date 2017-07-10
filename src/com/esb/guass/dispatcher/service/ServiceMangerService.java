@@ -1,7 +1,7 @@
 package com.esb.guass.dispatcher.service;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bson.Document;
@@ -9,7 +9,6 @@ import org.bson.Document;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.esb.guass.common.constant.HttpConstant;
 import com.esb.guass.common.constant.StatusConstant;
 import com.esb.guass.common.dao.mongo.MongoDAO;
 import com.esb.guass.dispatcher.entity.RequestEntity;
@@ -31,26 +30,26 @@ public class ServiceMangerService {
 	 * @param serviceEntity
 	 * @return
 	 */
-	public static String sendService(ServiceEntity serviceEntity, String identification){
-		if(serviceEntity.getServiceName().equals("test")){
+	public static String sendService(String serviceName, String identification, Map<String, String> params){
+		ServiceEntity serviceEntity = find(serviceName);
+		if(serviceEntity != null){
 			RequestEntity requestEntity = new RequestEntity();
 			requestEntity.setQuestId(UUID.randomUUID().toString());
-    		requestEntity.setUrl("http://localhost:16060/esb/manger/status/get");
+    		requestEntity.setUrl(serviceEntity.getMapUrl());
     		requestEntity.setIdentification(identification);
     		requestEntity.setStatus(StatusConstant.CODE_1201_MSG);
-    		requestEntity.setParams(new HashMap<>());
-    		RequestOption option = new RequestOption();
-    		option.setCharset(HttpConstant.DEFAULT_CHARSET);
-    		option.setMethod(HttpConstant.DEFAULT_METHOD);
-    		option.setBody(false);
-    		option.setHead(new HashMap<>());
-    		requestEntity.setRequestOption(option);
+    		requestEntity.setParams(params);
+    		if(serviceEntity.getRequestOption() == null){
+    			requestEntity.setRequestOption(new RequestOption());
+    		} else {
+    			requestEntity.setRequestOption(serviceEntity.getRequestOption());
+    		}
+    		
     		RequestQueue.add(requestEntity);
     		RequestService.insert(requestEntity);
     		return requestEntity.getQuestId();
 		}
-		
-		
+
 		return "";
 	}
 	
