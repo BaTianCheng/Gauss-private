@@ -19,7 +19,7 @@ public class MongoConstant {
 	/**
 	 * 用户名
 	 */
-	public static String USERNAME = "jinying";
+	public static String USERNAME = "root";
 	
 	/**
 	 * 密码
