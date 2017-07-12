@@ -16,5 +16,8 @@
 	<classpathentry kind="lib" path="lib/mongodb-driver-3.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache-core-2.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/crimson.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -20,6 +20,11 @@ public class ServiceEntity {
 	private String serviceName;
 	
 	/**
+	 * 所属模块
+	 */
+	private String module;
+	
+	/**
 	 * 映射路径
 	 */
 	private String mapUrl;
@@ -56,6 +61,14 @@ public class ServiceEntity {
 
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
 	}
 
 	public String getMapUrl() {

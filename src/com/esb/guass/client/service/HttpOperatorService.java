@@ -19,9 +19,9 @@ public class HttpOperatorService {
 	 * @param requestEntity
 	 * @return
 	 */
-	public static String buildRequest(RequestEntity requestEntity) throws Exception{
-		return buildRequest(requestEntity.getParams(),requestEntity.getRequestOption().getHead(),requestEntity.getUrl(),
-				requestEntity.getRequestOption().getMethod(),requestEntity.getRequestOption().getCharset(),requestEntity.getRequestOption().isBody());
+	public static HttpResponse buildRequest(RequestEntity requestEntity) throws Exception{
+		return buildRequest(requestEntity.getParams(),requestEntity.getHead(),requestEntity.getUrl(),
+				requestEntity.getRequestOption().getMethod(),requestEntity.getRequestOption().getCharset(),requestEntity.getPostBody());
 	}
 	
 	/**
@@ -31,25 +31,24 @@ public class HttpOperatorService {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String buildRequest(Map<String, String> sPara, Map<String, String> headers, String url, String method, String charset, boolean isBody) throws Exception {
+	public static HttpResponse buildRequest(Map<String, String> sPara, Map<String, String> headers, String url, String method, String charset, String strBody) throws Exception {
 
         HttpProtocolHandler httpProtocolHandler = HttpProtocolHandler.getInstance();
 
         HttpRequest request = new HttpRequest(HttpResultType.BYTES);
-        //设置编码集
+        
+        //设置请求信息
         request.setCharset(charset);
-        request.setParameters(StringUtils.generatNameValuePair(sPara));
+        if(sPara != null){
+        	request.setParameters(StringUtils.generatNameValuePair(sPara));
+        }
         request.setMethod(method);
         request.setUrl(url);
+        request.setHeaders(headers);
+        
+        HttpResponse response = httpProtocolHandler.execute(request, "", "", strBody);
 
-        HttpResponse response = httpProtocolHandler.execute(request, "", "", headers, isBody);
-        if (response == null) {
-            return null;
-        }
-
-        String strResult = response.getStringResult();
-
-        return strResult;
+        return response;
     }
 	
 }

@@ -24,7 +24,7 @@ public class MonitorRunnable implements Runnable{
 			}
 			
 			try {
-				Thread.sleep(200);
+				Thread.sleep(ConfigConstant.MONITOR_INTERVAL);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

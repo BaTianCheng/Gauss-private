@@ -2,7 +2,10 @@ package com.esb.guass.dispatcher.entity;
 
 import java.util.Map;
 
+import org.apache.commons.httpclient.Header;
+
 import com.alibaba.fastjson.JSON;
+import com.esb.guass.common.constant.HttpConstant;
 
 /**
  * 请求业务实例
@@ -41,9 +44,19 @@ public class RequestEntity {
 	private RequestOption requestOption;
 	
 	/**
+	 * 头部数据
+	 */
+	private Map<String, String> head;
+	
+	/**
 	 * 参数
 	 */
 	private Map<String, String> params;
+	
+	/**
+	 * POST体数据
+	 */
+	private String postBody;
 	
 	/**
 	 * 请求时间
@@ -69,7 +82,17 @@ public class RequestEntity {
 	 * 结果字符串
 	 */
 	private String result;
-
+	
+	/**
+	 * 响应字符集
+	 */
+	private String responseCharset = HttpConstant.DEFAULT_CHARSET;
+	
+	/**
+	 * 响应内容格式
+	 */
+	private Header[] responseHeaders;
+	
 	public String getQuestId() {
 		return questId;
 	}
@@ -85,7 +108,7 @@ public class RequestEntity {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
+
 	public String getIdentification() {
 		return identification;
 	}
@@ -118,12 +141,33 @@ public class RequestEntity {
 		this.requestOption = requestOption;
 	}
 
+	public Map<String, String> getHead() {
+		return head;
+	}
+
+	public void setHead(Map<String, String> head) {
+		this.head = head;
+	}
+
 	public Map<String, String> getParams() {
 		return params;
 	}
 
 	public void setParams(Map<String, String> params) {
 		this.params = params;
+	}
+
+	public String getPostBody() {
+		if(postBody==null && requestOption != null && requestOption.isBody() == true){
+            if(getParams() != null){
+            	return JSON.toJSONString(getParams());
+            }
+		}
+		return postBody;
+	}
+
+	public void setPostBody(String postBody) {
+		this.postBody = postBody;
 	}
 
 	public long getRequestTime() {
@@ -157,13 +201,29 @@ public class RequestEntity {
 	public void setRequestIP(String requestIP) {
 		this.requestIP = requestIP;
 	}
-	
+
 	public String getResult() {
 		return result;
 	}
 
 	public void setResult(String result) {
 		this.result = result;
+	}
+
+	public String getResponseCharset() {
+		return responseCharset;
+	}
+
+	public void setResponseCharset(String responseCharset) {
+		this.responseCharset = responseCharset;
+	}
+
+	public Header[] getResponseHeaders() {
+		return responseHeaders;
+	}
+
+	public void setResponseHeaders(Header[] responseHeaders) {
+		this.responseHeaders = responseHeaders;
 	}
 
 	@Override

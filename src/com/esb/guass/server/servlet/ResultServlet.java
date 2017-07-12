@@ -25,15 +25,19 @@ public class ResultServlet extends BaseSerlvet {
     @WebMapping(url = "/results/get", comment = "HTTP代理发送请求服务")
     @WebParam(name = "questId", type = String.class, comment = "请求任务编号")
     @WebParam(name = "businessId", type = String.class, comment = "业务编号")
-    @WebParam(name = "identification", type = String.class, comment = "身份识别码")
     public void getResult(HttpRequest req, HttpResponse resp) throws IOException {
-    	if((Strings.isNullOrEmpty(req.getParameter("questId")) && Strings.isNullOrEmpty(req.getParameter("businessId"))) || Strings.isNullOrEmpty(req.getParameter("identification") )){
+    	if((Strings.isNullOrEmpty(req.getParameter("questId")) && Strings.isNullOrEmpty(req.getParameter("businessId")))){
     		this.writeErrorResult(resp, StatusConstant.CODE_400, StatusConstant.CODE_400_MSG, null);
     	} else {
     		if(!Strings.isNullOrEmpty(req.getParameter("questId"))){
     			RequestEntity requestEntity = RequestService.find(req.getParameter("questId"));
-    			this.writeSuccessResult(resp, requestEntity.getResult(), StatusConstant.CODE_200_MSG, requestEntity.getQuestId());
+    			if(requestEntity!=null){
+    				this.writeSuccessResult(resp, requestEntity.getResult(), StatusConstant.CODE_200_MSG, requestEntity.getQuestId());
+    			} else {
+    				this.writeErrorResult(resp, StatusConstant.CODE_500, "系统异常，数据库无记录", null);
+    			}
     		} else {
+    			//根据businessId获取数据
     			
     		}
     	}

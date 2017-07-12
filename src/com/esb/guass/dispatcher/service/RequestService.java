@@ -9,6 +9,7 @@ import org.bson.conversions.Bson;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.esb.guass.common.cache.ehcache.EhCacheService;
 import com.esb.guass.common.dao.mongo.MongoDAO;
 import com.esb.guass.dispatcher.entity.RequestEntity;
 import com.mongodb.BasicDBObject;
@@ -30,6 +31,9 @@ public class RequestService {
 	public static void insert(RequestEntity entity){
 		Document doc = new Document(JSONObject.parseObject(entity.toString())) ;
 		MongoDAO.getInstance().insert(dbName, collectionName, doc);
+		
+		//更新缓存
+		EhCacheService.setResultCache(entity);
 	}
 	
 	/**
@@ -41,6 +45,9 @@ public class RequestService {
 		Document filter = new Document();  
     	filter.append("questId", entity.getQuestId());  
 		MongoDAO.getInstance().update(dbName, collectionName, filter, doc);
+		
+		//更新缓存
+		EhCacheService.setResultCache(entity);
 	}
 	
 	/**
@@ -48,6 +55,12 @@ public class RequestService {
 	 * @param questId
 	 */
 	public static RequestEntity find(String questId){
+		//判断是否读取缓存
+		if(EhCacheService.getResultCache(questId) != null){
+			return EhCacheService.getResultCache(questId);
+		}
+		
+		//无缓存时从数据库中查找
 		Document filter = new Document();  
     	filter.append("questId", questId);  
     	List<Document> docs = MongoDAO.getInstance().findBy(dbName, collectionName, filter);

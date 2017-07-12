@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.httpclient.Header;
 import org.redkale.convert.json.JsonConvert;
 import org.redkale.convert.json.JsonFactory;
 import org.redkale.net.http.HttpRequest;
@@ -113,6 +114,26 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
     	result.setData(data);
     	resp.addHeader("Access-Control-Allow-Origin", "*");
     	resp.finishJson(result);
+    }
+    
+    /**
+     * 直接返回结果
+     * @param resp
+     * @param data
+     */
+    public void writeText(HttpResponse resp, String data, Header[] headers){
+    	if(headers != null){
+    		for(Header header : headers){
+    			if(header.getName().toLowerCase().equals("content-type")){
+    				resp.setHeader(header.getName(), header.getValue());
+    			} else if (header.getName().equals("content-length") || header.getName().equals("date")){
+    				continue;
+    			} else {
+    				resp.addHeader(header.getName(), header.getValue());
+    			}
+    		}
+    	}
+		resp.finish(data);
     }
     
     /**

@@ -1,7 +1,5 @@
 package com.esb.guass.dispatcher.entity;
 
-import java.util.Map;
-
 import com.alibaba.fastjson.JSON;
 import com.esb.guass.common.constant.HttpConstant;
 
@@ -22,12 +20,7 @@ public class RequestOption {
 	private String method = HttpConstant.DEFAULT_METHOD;
 	
 	/**
-	 * 头部数据
-	 */
-	private Map<String, String> head;
-	
-	/**
-	 * 是否体传递
+	 * 是否将参数以体的形式传递
 	 */
 	private boolean isBody = false;
 	
@@ -55,14 +48,6 @@ public class RequestOption {
 
 	public void setMethod(String method) {
 		this.method = method;
-	}
-
-	public Map<String, String> getHead() {
-		return head;
-	}
-
-	public void setHead(Map<String, String> head) {
-		this.head = head;
 	}
 
 	public boolean isBody() {

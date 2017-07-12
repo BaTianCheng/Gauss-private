@@ -1,6 +1,8 @@
 package com.esb.guass.dispatcher.runnable;
 
+import com.esb.guass.client.entity.HttpResponse;
 import com.esb.guass.client.service.HttpOperatorService;
+import com.esb.guass.common.cache.ehcache.EhCacheService;
 import com.esb.guass.common.constant.StatusConstant;
 import com.esb.guass.common.util.LogUtils;
 import com.esb.guass.dispatcher.entity.RequestEntity;
@@ -15,17 +17,23 @@ public class RequsetRunnable implements Runnable{
 
 	@Override
 	public void run() {
-		//考虑到操作频繁，暂不入库，后期入缓存
+		//考虑到操作频繁，暂不入库，只入缓存
 		RequestEntity requestEntity = RequestQueue.poll();
 		requestEntity.setExcuteTime(System.currentTimeMillis());
 		requestEntity.setStatus(StatusConstant.CODE_1202);
+		EhCacheService.setResultCache(requestEntity);
 		
 		if(requestEntity != null){
 			try {
-				String result = HttpOperatorService.buildRequest(requestEntity);
+				HttpResponse response = HttpOperatorService.buildRequest(requestEntity);
+				if(response == null){
+					throw new Exception();
+				}
 				requestEntity.setResponseTime(System.currentTimeMillis());
 				requestEntity.setStatus(StatusConstant.CODE_1203);
-				requestEntity.setResult(result);
+				requestEntity.setResult( response.getStringResult());
+				requestEntity.setResponseCharset( response.getCharset());
+				requestEntity.setResponseHeaders(response.getResponseHeaders());
 				RequestService.update(requestEntity);
 			} catch (Throwable thrown) {
 				requestEntity.setResponseTime(System.currentTimeMillis());

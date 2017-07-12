@@ -11,6 +11,10 @@ public class ResponseResult {
 	private String questId;
 	
 	private Object data;
+	
+	private String chartset;
+	
+	private String contentType;
 
 	public String getStatusCode() {
 		return statusCode;
@@ -42,6 +46,22 @@ public class ResponseResult {
 
 	public void setData(Object data) {
 		this.data = data;
+	}
+
+	public String getChartset() {
+		return chartset;
+	}
+
+	public void setChartset(String chartset) {
+		this.chartset = chartset;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
 	}
 
 	@Override

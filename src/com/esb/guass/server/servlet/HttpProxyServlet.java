@@ -34,9 +34,8 @@ public class HttpProxyServlet extends BaseSerlvet {
     @AuthIgnore
     @WebMapping(url = "/proxys/request", comment = "HTTP代理发送请求服务")
     @WebParam(name = "url", type = String.class, comment = "请求转发的URL")
-    @WebParam(name = "identification", type = String.class, comment = "身份识别码")
     public void request(HttpRequest req, HttpResponse resp) throws IOException {
-    	if(Strings.isNullOrEmpty(req.getParameter("url")) || Strings.isNullOrEmpty(req.getParameter("identification") )){
+    	if(Strings.isNullOrEmpty(req.getParameter("url"))){
     		this.writeErrorResult(resp, StatusConstant.CODE_400, StatusConstant.CODE_400_MSG, null);
     	} else {
     		//参数解析
@@ -45,6 +44,8 @@ public class HttpProxyServlet extends BaseSerlvet {
 	    		requestEntity.setQuestId(UUID.randomUUID().toString());
 	    		requestEntity.setUrl(req.getParameter("url"));
 	    		requestEntity.setIdentification(req.getParameter("identification"));
+	    		requestEntity.setRequestOption(parseRequestOption(req));
+	    		
 	        	if(!Strings.isNullOrEmpty(req.getParameter("data"))){
 	    			@SuppressWarnings("unchecked")
 	    			Map<String, String> params = JSON.parseObject(req.getParameter("data"), HashMap.class);
@@ -53,16 +54,32 @@ public class HttpProxyServlet extends BaseSerlvet {
 	        	if(!Strings.isNullOrEmpty(req.getParameter("getResultData"))){
 	        		requestEntity.setAsync(Boolean.valueOf(req.getParameter("getResultData")));
 	        	}
+	    		if(!Strings.isNullOrEmpty(req.getParameter("head"))){
+	    			@SuppressWarnings("unchecked")
+	    			Map<String, String> head = JSON.parseObject(req.getParameter("head"), HashMap.class);
+	    			requestEntity.setHead(head);
+	    		} else {
+	    			Map<String, String> head = new HashMap<>();
+	    			if(req.getHeaderNames() != null){
+	    				for(String headName : req.getHeaderNames()){
+	    					head.put(headName, req.getHeader(headName));
+	    				}
+	    			}
+	    			requestEntity.setHead(head);
+	    		}
+	    		if(Strings.isNullOrEmpty(req.getBodyUTF8())){
+	    			requestEntity.setPostBody(req.getBodyUTF8());
+	    		}
 	    		requestEntity.setRequestIP(req.getHost());
 	    		requestEntity.setRequestTime(req.getCreatetime());
-	    		requestEntity.setRequestOption(parseRequestOption(req));
+	    		
 	    		requestEntity.setStatus(StatusConstant.CODE_1201);
     		}
     		catch(Exception ex){
     			this.writeErrorResult(resp, StatusConstant.CODE_400, StatusConstant.CODE_400_MSG, ex.toString());
     		}
-    		RequestQueue.add(requestEntity);
     		RequestService.insert(requestEntity);
+    		RequestQueue.add(requestEntity);
     		
     		//判断是否立刻返回结果
     		if(requestEntity.isAsync()){
@@ -72,7 +89,7 @@ public class HttpProxyServlet extends BaseSerlvet {
     			if(entity == null){
     				this.writeErrorResult(resp, StatusConstant.CODE_500, StatusConstant.CODE_500_MSG, requestEntity);
     			}else if(entity.getStatus().equals(StatusConstant.CODE_1203)){
-    				this.writeSuccessResult(resp, entity.getResult(), StatusConstant.CODE_200_MSG, entity.getQuestId());
+    				this.writeText(resp, entity.getResult(), entity.getResponseHeaders());
     			} else {
     				this.writeSuccessResult(resp, null, StatusConstant.CODE_201_MSG, requestEntity.getQuestId());
     			}
@@ -99,6 +116,8 @@ public class HttpProxyServlet extends BaseSerlvet {
 		
 		if(!Strings.isNullOrEmpty(req.getParameter("method"))){
 			option.setMethod(req.getParameter("method"));
+		} else {
+			option.setMethod(req.getMethod());
 		}
 		
 		if(!Strings.isNullOrEmpty(req.getParameter("isbody"))){
@@ -110,12 +129,6 @@ public class HttpProxyServlet extends BaseSerlvet {
 
 		if(!Strings.isNullOrEmpty(req.getParameter("id"))){
 			option.setBusinessId(req.getParameter("id"));
-		}
-		
-		if(!Strings.isNullOrEmpty(req.getParameter("head"))){
-			@SuppressWarnings("unchecked")
-			Map<String, String> head = JSON.parseObject(req.getParameter("head"), HashMap.class);
-    		option.setHead(head);
 		}
 		
 		return option;

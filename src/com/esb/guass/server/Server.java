@@ -2,6 +2,7 @@ package com.esb.guass.server;
 
 import org.redkale.boot.Application;
 
+import com.esb.guass.common.cache.ehcache.EhCacheService;
 import com.esb.guass.dispatcher.runnable.MonitorRunnable;
 
 /**
@@ -15,6 +16,9 @@ public class Server {
 			//启动监控线程
 	        Thread monitor = new Thread(new MonitorRunnable());
 	        monitor.start();
+	        
+	        //启动缓存
+	        EhCacheService.init();
 	            
 			 //主程序启动
 			Application.main(args);

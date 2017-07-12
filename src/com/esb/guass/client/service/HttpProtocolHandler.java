@@ -11,10 +11,11 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.util.IdleConnectionTimeoutThread;
 
-import com.alibaba.fastjson.JSONObject;
 import com.esb.guass.client.entity.HttpRequest;
 import com.esb.guass.client.entity.HttpResponse;
 import com.esb.guass.client.entity.HttpResultType;
@@ -31,15 +32,16 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 /**
  * HttpClient方式访问
+ * (目前客户端访问方式混乱，主要是由于request,reponse使用的类型不同造成，后期再改)
  * @author wicks
  */
 public class HttpProtocolHandler {
@@ -52,7 +54,7 @@ public class HttpProtocolHandler {
     private static HttpProtocolHandler httpProtocolHandler = new HttpProtocolHandler();
 
     /**
-     * 工厂方法s
+     * 工厂方法
      * @return
      */
     public static HttpProtocolHandler getInstance() {
@@ -80,14 +82,12 @@ public class HttpProtocolHandler {
      * @param request 请求
      * @param strParaFileName 文件类型参数
      * @param strFilePath 文件路径
-     * @param headers 报文头
-     * @param isBody 是否体传值
+     * @param strBody 体数据
      * @return 响应
      * @throws HttpException
      * @throws IOException
      */
-    @SuppressWarnings("deprecation")
-	public HttpResponse execute(HttpRequest request, String strParaFileName, String strFilePath, Map<String, String> headers, boolean isBody) throws HttpException, IOException {
+	public HttpResponse execute(HttpRequest request, String strParaFileName, String strFilePath, String strBody) throws HttpException, IOException {
     	HttpClient httpclient;
     	
     	//https协议加载
@@ -120,28 +120,42 @@ public class HttpProtocolHandler {
         charset = charset == null ? HttpConstant.DEFAULT_CHARSET : charset;
         HttpMethod method = null;
 
-        //get模式且不带上传文件
+        //get模式
         //parseNotifyConfig会保证使用GET方法时，request一定使用QueryString
         if (request.getMethod().equals(HttpRequest.METHOD_GET)) {
             method = new GetMethod(request.getUrl());
             method.getParams().setCredentialCharset(charset);
-            method.setQueryString(request.getQueryString());
-        } else if(Strings.isNullOrEmpty(strParaFileName)&&Strings.isNullOrEmpty(strFilePath)) {
-        	//post模式且不带上传文件
-            method = new PostMethod(request.getUrl());
-            if(isBody){
-            	JSONObject obj = new JSONObject();
-                if(request.getParameters() != null){
-                	for(NameValuePair param : request.getParameters() ){
-                		obj.put(param.getName(),param.getValue());
-                	}
-                }
-                ((PostMethod) method).setRequestBody(obj.toString());
-                method.addRequestHeader("Content-Type", "application/json; text/html; charset=" + charset);
-            } else {
-            	((PostMethod) method).addParameters(request.getParameters());
-            	method.addRequestHeader("Content-Type", "application/json; text/html; charset=" + charset);
+            if(request.getQueryString() != null){
+            	method.setQueryString(request.getQueryString());
+            }  else if(request.getParameters() != null){
+            	StringBuilder sb = new StringBuilder();
+            	for(NameValuePair pair : request.getParameters()){
+            		sb.append(pair.getName()+"="+pair.getValue()+"&");
+            	}
+            	method.setQueryString(sb.toString());
             }
+            
+        } else if(Strings.isNullOrEmpty(strParaFileName)&&Strings.isNullOrEmpty(strFilePath)) {
+        	//post模式
+            method = new PostMethod(request.getUrl());
+            if(!Strings.isNullOrEmpty(strBody)){
+            	byte[] b = strBody.getBytes("utf-8");  
+                InputStream is = new ByteArrayInputStream(b, 0, b.length);  
+                RequestEntity re = new InputStreamRequestEntity(is, b.length,  
+                        "application/soap+xml; charset=utf-8");  
+                ((PostMethod) method).setRequestEntity(re); 
+                
+                StringBuilder sb = new StringBuilder();
+            	for(NameValuePair pair : request.getParameters()){
+            		sb.append(pair.getName()+"="+pair.getValue()+"&");
+            	}
+            	method.setQueryString(sb.toString());
+                
+            } else {
+            	 ((PostMethod) method).addParameters(request.getParameters());
+            }
+           
+            method.setRequestHeader("Content-Type", "application/json; text/html; charset=" + charset);
         }
         else {
         	//post模式且带上传文件
@@ -155,15 +169,15 @@ public class HttpProtocolHandler {
         }
 
         // 设置Http Header中的User-Agent属性
-        method.addRequestHeader("User-Agent", "Mozilla/4.0");
-        
-        //插入报文头
-        if(headers != null){
-        	for(Entry<String, String> header : headers.entrySet()){
-        		method.addRequestHeader(header.getKey(), header.getValue());
+        method.setRequestHeader("User-Agent", "Mozilla/4.0");
+        if(request.getHeaders() != null){
+        	for(Entry<String, String> head : request.getHeaders().entrySet()){
+        		//编码格式处理，导致gzip无法入库，不做压缩
+        		if(!head.getKey().toLowerCase().equals("accept-encoding") ){
+        			method.setRequestHeader(head.getKey(), head.getValue());
+        		}
         	}
         }
-        
         HttpResponse response = new HttpResponse();
 
         try {
@@ -193,6 +207,7 @@ public class HttpProtocolHandler {
         } finally {
             method.releaseConnection();
         }
+        
         return response;
     }
 

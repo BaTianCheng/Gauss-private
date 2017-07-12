@@ -1,5 +1,7 @@
 package com.esb.guass.client.entity;
 
+import java.util.Map;
+
 import org.apache.commons.httpclient.NameValuePair;
 
 /**
@@ -28,6 +30,8 @@ public class HttpRequest {
 
     private int connectionTimeout = 0;
 
+    private Map<String, String> headers = null;
+    
     /**
      * Post方式请求时组装好的参数值对
      */
@@ -71,8 +75,16 @@ public class HttpRequest {
     public void setClientIp(String clientIp) {
         this.clientIp = clientIp;
     }
+    
+    public Map<String, String> getHeaders() {
+		return headers;
+	}
 
-    public NameValuePair[] getParameters() {
+	public void setHeaders(Map<String, String> headers) {
+		this.headers = headers;
+	}
+
+	public NameValuePair[] getParameters() {
         return parameters;
     }
 
