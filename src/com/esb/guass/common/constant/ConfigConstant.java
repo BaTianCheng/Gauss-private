@@ -11,4 +11,8 @@ public class ConfigConstant {
 	//请求时如果需要返回结果限时和间隔
 	public static int RETURNRESULTDATA_MAXTIME = 60 * 1000;
 	public static int RETURNRESULTDATA_INTERVAL = 50;
+	
+	//请求类型
+	public static String HTTP = "HTTP";
+	public static String API = "API";
 }

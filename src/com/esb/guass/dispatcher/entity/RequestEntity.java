@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.httpclient.Header;
 
 import com.alibaba.fastjson.JSON;
+import com.esb.guass.common.constant.ConfigConstant;
 import com.esb.guass.common.constant.HttpConstant;
 
 /**
@@ -17,6 +18,11 @@ public class RequestEntity {
 	 * 任务编号
 	 */
 	private String questId;
+	
+	/**
+	 * 请求类型
+	 */
+	private String requestType = ConfigConstant.HTTP;
 	
 	/**
 	 * 请求路径
@@ -99,6 +105,14 @@ public class RequestEntity {
 
 	public void setQuestId(String questId) {
 		this.questId = questId;
+	}
+
+	public String getRequestType() {
+		return requestType;
+	}
+
+	public void setRequestType(String requestType) {
+		this.requestType = requestType;
 	}
 
 	public String getUrl() {

@@ -1,6 +1,6 @@
 package com.esb.guass.test;
 
-import com.esb.guass.dispatcher.service.RequestService;
+import com.esb.guass.dispatcher.service.TrackService;
 
 public class MongoTest {
 	public static void main(String[] args) {
@@ -46,8 +46,10 @@ public class MongoTest {
 		
 		System.out.println(MongoDAO.getInstance().findAll("db_ebs", "tb_request"));
 		*/
-		System.out.println(RequestService.findAll().get(0).getQuestId());
-		System.out.println(RequestService.find("51c965bb-f01f-40ae-b4f6-70fbc28d6a01").getResult());
-
+		//System.out.println(RequestService.findAll().get(0).getQuestId());
+		//System.out.println(RequestService.find("51c965bb-f01f-40ae-b4f6-70fbc28d6a01").getResult());
+		
+		System.out.println(TrackService.find("8ebc4571-59ae-4dac-9dd9-a3ee71c124b7"));
+		
 	}
 }

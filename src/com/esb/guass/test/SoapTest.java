@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
@@ -80,7 +79,7 @@ public class SoapTest {
                 + "            <productCode xsi:type=\"soapenc:string\" xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\">?</productCode>" 
                 + "         </in0>" + "      </web:order>" 
                 + "   </soapenv:Body>" + "</soapenv:Envelope>";  
-        */
+        
         String querySoapXml = "<?xml version = \"1.0\" ?>" 
                 + "<soapenv:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:web=\"http://webservices.b.com\">" 
                 + "   <soapenv:Header/>" 
@@ -92,6 +91,7 @@ public class SoapTest {
                 + "            <startTime xsi:type=\"xsd:dateTime\">?</startTime>" 
                 + "         </in0>" + "      </web:query>" 
                 + "   </soapenv:Body>" + "</soapenv:Envelope>";  
+                */
         String postUrl = "http://srvgxp.goodee.cn/XISOAPAdapter/MessageServlet?senderParty=&senderService=BS_RF&receiverParty=&receiverService=&interface=SIO_NET&interfaceNamespace=urn%3Anet%3Adealup";  
         //采用SOAP1.1调用服务端，这种方式能调用服务端为soap1.1和soap1.2的服务  
         //doPostSoap1_1(postUrl, "", "");  

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bson.Document;
+import org.redkale.net.http.HttpRequest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -33,15 +34,17 @@ public class ServiceMangerService {
 	 * @param serviceEntity
 	 * @return
 	 */
-	public static RequestEntity sendService(String serviceName, String identification, Map<String, String> params, Map<String, String> headers, String strBody){
-		ServiceEntity serviceEntity = find(serviceName);
+	public static RequestEntity sendService(String serviceCode, String identification, Map<String, String> params, Map<String, String> headers, HttpRequest req){
+		ServiceEntity serviceEntity = find(serviceCode);
 		if(serviceEntity != null){
 			RequestEntity requestEntity = new RequestEntity();
 			requestEntity.setQuestId(UUID.randomUUID().toString());
+    		requestEntity.setRequestTime(System.currentTimeMillis());
+			requestEntity.setRequestType(serviceEntity.getRequestType());
     		requestEntity.setUrl(serviceEntity.getMapUrl());
     		requestEntity.setIdentification(identification);
     		requestEntity.setStatus(StatusConstant.CODE_1201_MSG);
-    		requestEntity.setAsync(serviceEntity.isAsync());
+    		requestEntity.setAsync(req.getBooleanParameter("async", serviceEntity.isAsync()));
     		if(serviceEntity.getRequestOption() == null){
     			requestEntity.setRequestOption(new RequestOption());
     		} else {
@@ -57,10 +60,11 @@ public class ServiceMangerService {
     			}
     		} 
     		requestEntity.setHead(headers);
-    		if(!Strings.isNullOrEmpty(strBody)){
-    			requestEntity.setPostBody(strBody);
+    		if(!Strings.isNullOrEmpty(req.getBodyUTF8())){
+    			requestEntity.setPostBody(req.getBodyUTF8());
     		}
     		
+    		requestEntity.setRequestIP(req.getHost());
     		RequestService.insert(requestEntity);
     		RequestQueue.add(requestEntity);
     		return requestEntity;
@@ -97,16 +101,16 @@ public class ServiceMangerService {
 	
 	/**
 	 * 查询
-	 * @param serviceName
+	 * @param serviceCode
 	 */
-	public static ServiceEntity find(String serviceName){
+	public static ServiceEntity find(String serviceCode){
 		//判断是否读取缓存
-		if(EhCacheService.getServiceCache(serviceName) != null){
-			return EhCacheService.getServiceCache(serviceName);
+		if(EhCacheService.getServiceCache(serviceCode) != null){
+			return EhCacheService.getServiceCache(serviceCode);
 		}
 
 		Document filter = new Document();  
-    	filter.append("serviceName", serviceName);  
+    	filter.append("serviceCode", serviceCode);  
     	List<Document> docs = MongoDAO.getInstance().findBy(dbName, collectionName, filter);
     	if(docs.size() > 0){
     		return JSONObject.toJavaObject(JSONObject.parseObject(JSON.toJSONString(docs.get(0))), ServiceEntity.class);
@@ -127,6 +131,16 @@ public class ServiceMangerService {
 	 */
 	public static List<ServiceEntity> findAll(){
 		List<Document> docs = MongoDAO.getInstance().findAll(dbName, collectionName);
+		return JSONArray.parseArray(JSON.toJSONString(docs), ServiceEntity.class);
+	}
+	
+	/**
+	 * 根据模块查询
+	 */
+	public static List<ServiceEntity> findByModule(String module){
+		Document filter = new Document();  
+    	filter.append("module", module);  
+		List<Document> docs = MongoDAO.getInstance().findBy(dbName, collectionName, filter);
 		return JSONArray.parseArray(JSON.toJSONString(docs), ServiceEntity.class);
 	}
 }

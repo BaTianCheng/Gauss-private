@@ -82,5 +82,14 @@ public class StringUtils {
         String rtn[]=(String[]) vTemp.toArray(new String[0]);
         return rtn;
     }
+    
+    /**
+     * SQL参数替换
+     * @param sql
+     * @param value
+     */
+    public static String setSqlParam(String sql, Object value){
+    	return sql.replaceFirst("[?]", "'"+value+"'");
+    }
 
 }

@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.esb.guass.common.cache.ehcache.EhCacheService;
+import com.esb.guass.common.constant.StatusConstant;
 import com.esb.guass.common.dao.mongo.MongoDAO;
 import com.esb.guass.dispatcher.entity.RequestEntity;
 import com.mongodb.BasicDBObject;
@@ -31,6 +32,7 @@ public class RequestService {
 	public static void insert(RequestEntity entity){
 		Document doc = new Document(JSONObject.parseObject(entity.toString())) ;
 		MongoDAO.getInstance().insert(dbName, collectionName, doc);
+		TrackService.record(entity.getQuestId(), StatusConstant.CODE_1201_MSG);
 		
 		//更新缓存
 		EhCacheService.setResultCache(entity);

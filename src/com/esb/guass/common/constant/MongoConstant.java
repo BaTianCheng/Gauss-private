@@ -9,7 +9,7 @@ public class MongoConstant {
 	/**
 	 * IP地址
 	 */
-	public static String IP = "localhost";
+	public static String IP = "192.168.70.236";
 	
 	/**
 	 * 端口号
@@ -30,6 +30,11 @@ public class MongoConstant {
 	 * 最大连接数
 	 */
 	public static int MAX_CONNECTIONS = 50;
+	
+	/**
+	 * 次要客户端最大连接数
+	 */
+	public static int SECONDARY_MAX_CONNECTIONS = 20;
 	
 	/**
 	 * 连接超时

@@ -70,6 +70,8 @@ public class HttpProxyServlet extends BaseSerlvet {
 	    		if(Strings.isNullOrEmpty(req.getBodyUTF8())){
 	    			requestEntity.setPostBody(req.getBodyUTF8());
 	    		}
+	    		
+	    		requestEntity.setAsync(req.getBooleanParameter("async", true));
 	    		requestEntity.setRequestIP(req.getHost());
 	    		requestEntity.setRequestTime(req.getCreatetime());
 	    		

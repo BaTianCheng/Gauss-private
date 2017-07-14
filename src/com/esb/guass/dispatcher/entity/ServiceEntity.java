@@ -15,6 +15,11 @@ import com.alibaba.fastjson.JSON;
 public class ServiceEntity {
 	
 	/**
+	 * 服务编码
+	 */
+	private String serviceCode;
+	
+	/**
 	 * 服务名称
 	 */
 	private String serviceName;
@@ -23,6 +28,11 @@ public class ServiceEntity {
 	 * 所属模块
 	 */
 	private String module;
+	
+	/**
+	 * 请求类型
+	 */
+	private String requestType;
 	
 	/**
 	 * 映射路径
@@ -55,6 +65,14 @@ public class ServiceEntity {
 	private List<String> headParams;
 	
 
+	public String getServiceCode() {
+		return serviceCode;
+	}
+
+	public void setServiceCode(String serviceCode) {
+		this.serviceCode = serviceCode;
+	}
+
 	public String getServiceName() {
 		return serviceName;
 	}
@@ -69,6 +87,14 @@ public class ServiceEntity {
 
 	public void setModule(String module) {
 		this.module = module;
+	}
+
+	public String getRequestType() {
+		return requestType;
+	}
+
+	public void setRequestType(String requestType) {
+		this.requestType = requestType;
 	}
 
 	public String getMapUrl() {

@@ -27,10 +27,10 @@ public class ServiceServlet extends BaseSerlvet {
     @AuthIgnore
     @WebMapping(url = "/services/get", comment = "获取ESB服务项")
     public void getService(HttpRequest req, HttpResponse resp) throws IOException {
-    	if(Strings.isNullOrEmpty(req.getParameter("serviceName"))){
+    	if(Strings.isNullOrEmpty(req.getParameter("serviceCode"))){
     		this.writeErrorResult(resp, StatusConstant.CODE_400, StatusConstant.CODE_400_MSG, null);
     	} else {
-    		String serviceName = req.getParameter("serviceName");
+    		String serviceCode = req.getParameter("serviceCode");
     		
     		//解析参数(多参数数组形式只解析第一个参数，如a=1&a=2，只解析a=1)
     		Map<String, String> params = new HashMap<>();
@@ -40,7 +40,7 @@ public class ServiceServlet extends BaseSerlvet {
     			params.putAll(paramDatas);
     		}
     		for(String paramName : req.getParameterNames()){
-    			if(!paramName.equals("serviceName") && !paramName.equals("identification")){
+    			if(!paramName.equals("serviceCode") && !paramName.equals("identification")){
     				params.put(paramName, req.getParameter(paramName));
     			}
     		}
@@ -53,7 +53,7 @@ public class ServiceServlet extends BaseSerlvet {
 				}
 			}
     		
-			RequestEntity requestEntity = ServiceMangerService.sendService(serviceName, "", params, head, req.getBodyUTF8());
+			RequestEntity requestEntity = ServiceMangerService.sendService(serviceCode, "", params, head, req);
 			
 			//判断服务是否存在
 			if(requestEntity == null){
@@ -88,7 +88,7 @@ public class ServiceServlet extends BaseSerlvet {
     public void getServiceByPath(HttpRequest req, HttpResponse resp) throws IOException {
     	String[] pathSplits = req.getRequestURI().split("/services/auto");
     	if(pathSplits!=null && pathSplits.length>=2){
-    		String serviceName = pathSplits[1];
+    		String serviceCode = pathSplits[1];
     		//解析参数(多参数数组形式只解析第一个参数，如a=1&a=2，只解析a=1)
     		Map<String, String> params = new HashMap<>();
     		if(!Strings.isNullOrEmpty(req.getParameter("data"))){
@@ -97,7 +97,7 @@ public class ServiceServlet extends BaseSerlvet {
     			params.putAll(paramDatas);
     		}
     		for(String paramName : req.getParameterNames()){
-    			if(!paramName.equals("serviceName") && !paramName.equals("identification")){
+    			if(!paramName.equals("serviceCode") && !paramName.equals("identification")){
     				params.put(paramName, req.getParameter(paramName));
     			}
     		}
@@ -110,7 +110,7 @@ public class ServiceServlet extends BaseSerlvet {
 				}
 			}
     		
-			RequestEntity requestEntity = ServiceMangerService.sendService(serviceName, "", params, head, req.getBodyUTF8());
+			RequestEntity requestEntity = ServiceMangerService.sendService(serviceCode, "", params, head, req);
 			
 			//判断服务是否存在
 			if(requestEntity == null){

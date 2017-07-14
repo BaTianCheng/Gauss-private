@@ -55,8 +55,10 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
     public void preExecute(final HttpRequest request, final HttpResponse response, HttpServlet next) throws IOException {
     	//记录所有请求
         if (info) response.setRecycleListener((req, resp) -> {
-        	long e = System.currentTimeMillis() - request.getCreatetime();
-        	logger.info("["+request.getCreatetime()+"]请求耗时" + e + " 毫秒. 请求为: " + req);
+        	if(!req.getRequestURI().contains("/results/tracks/get")){
+        		long e = System.currentTimeMillis() - request.getCreatetime();
+        		logger.info("["+request.getCreatetime()+"]请求耗时" + e + " 毫秒. 请求为: " + req);
+        	}
         });
         next.execute(request, response);
     }
