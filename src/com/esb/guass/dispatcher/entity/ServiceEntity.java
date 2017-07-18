@@ -45,6 +45,11 @@ public class ServiceEntity {
 	private boolean async = true;
 	
 	/**
+	 * 是否直接返回结果（同步时无效）
+	 */
+	private boolean directReturn = false;
+	
+	/**
 	 * 请求选项
 	 */
 	private RequestOption requestOption;
@@ -63,6 +68,16 @@ public class ServiceEntity {
 	 * 头部参数列表
 	 */
 	private List<String> headParams;
+	
+	/**
+	 * 返回的内容格式（仅限直接返回）
+	 */
+	private String responseContentType;
+	
+	/**
+	 * 返回的错误信息（仅限直接返回）
+	 */
+	private String responseErrorMsg;
 	
 
 	public String getServiceCode() {
@@ -113,6 +128,14 @@ public class ServiceEntity {
 		this.async = async;
 	}
 
+	public boolean isDirectReturn() {
+		return directReturn;
+	}
+
+	public void setDirectReturn(boolean directReturn) {
+		this.directReturn = directReturn;
+	}
+
 	public RequestOption getRequestOption() {
 		return requestOption;
 	}
@@ -143,6 +166,22 @@ public class ServiceEntity {
 
 	public void setHeadParams(List<String> headParams) {
 		this.headParams = headParams;
+	}
+
+	public String getResponseContentType() {
+		return responseContentType;
+	}
+
+	public void setResponseContentType(String responseContentType) {
+		this.responseContentType = responseContentType;
+	}
+
+	public String getResponseErrorMsg() {
+		return responseErrorMsg;
+	}
+
+	public void setResponseErrorMsg(String responseErrorMsg) {
+		this.responseErrorMsg = responseErrorMsg;
 	}
 
 	@Override

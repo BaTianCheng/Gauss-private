@@ -28,6 +28,7 @@ public class RequsetRunnable implements Runnable{
 		requestEntity.setExcuteTime(System.currentTimeMillis());
 		requestEntity.setStatus(StatusConstant.CODE_1202);
 		TrackService.record(requestEntity.getQuestId(), StatusConstant.CODE_1202_MSG);
+		RequestService.update(requestEntity);
 		EhCacheService.setResultCache(requestEntity);
 		
 		//进行处理程序
@@ -39,7 +40,7 @@ public class RequsetRunnable implements Runnable{
 					Method method = clazz.getMethod("HandlerRequest",String.class, Map.class);
 			        ResultEntity result = (ResultEntity) method.invoke(clazz.newInstance(),requestEntity.getQuestId(), requestEntity.getParams());
 					requestEntity.setResponseTime(System.currentTimeMillis());
-					requestEntity.setResult(result.getMessage());
+					requestEntity.setResult(result.getMessage().toString());
 					
 					//执行处理程序成功
 					if(result.getStatusCode().equals(StatusConstant.CODE_200)){

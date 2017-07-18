@@ -39,12 +39,16 @@ public class ServiceMangerService {
 		if(serviceEntity != null){
 			RequestEntity requestEntity = new RequestEntity();
 			requestEntity.setQuestId(UUID.randomUUID().toString());
+			requestEntity.setServiceCode(serviceCode);
+			requestEntity.setServiceName(serviceEntity.getServiceName());
     		requestEntity.setRequestTime(System.currentTimeMillis());
 			requestEntity.setRequestType(serviceEntity.getRequestType());
     		requestEntity.setUrl(serviceEntity.getMapUrl());
     		requestEntity.setIdentification(identification);
-    		requestEntity.setStatus(StatusConstant.CODE_1201_MSG);
-    		requestEntity.setAsync(req.getBooleanParameter("async", serviceEntity.isAsync()));
+    		requestEntity.setStatus(StatusConstant.CODE_1201);
+    		requestEntity.setResponseContentType(serviceEntity.getResponseContentType());
+    		requestEntity.setResponseErrorMsg(serviceEntity.getResponseErrorMsg());
+    		requestEntity.setDirectReturn(serviceEntity.isDirectReturn());
     		if(serviceEntity.getRequestOption() == null){
     			requestEntity.setRequestOption(new RequestOption());
     		} else {
@@ -60,11 +64,13 @@ public class ServiceMangerService {
     			}
     		} 
     		requestEntity.setHead(headers);
-    		if(!Strings.isNullOrEmpty(req.getBodyUTF8())){
-    			requestEntity.setPostBody(req.getBodyUTF8());
+    		if(req != null){
+	    		requestEntity.setAsync(req.getBooleanParameter("async", serviceEntity.isAsync()));
+	    		if(!Strings.isNullOrEmpty(req.getBodyUTF8())){
+	    			requestEntity.setPostBody(req.getBodyUTF8());
+	    		}
+	    		requestEntity.setRequestIP(req.getRemoteAddr());
     		}
-    		
-    		requestEntity.setRequestIP(req.getHost());
     		RequestService.insert(requestEntity);
     		RequestQueue.add(requestEntity);
     		return requestEntity;
@@ -116,14 +122,6 @@ public class ServiceMangerService {
     		return JSONObject.toJavaObject(JSONObject.parseObject(JSON.toJSONString(docs.get(0))), ServiceEntity.class);
     	}
     	return null;
-	}
-	
-	/**
-	 * 查询全部
-	 */
-	public static List<ServiceEntity> findAll(int pageNum, int pageSize){
-		List<Document> docs = MongoDAO.getInstance().findAll(dbName, collectionName, pageNum, pageSize);
-		return JSONArray.parseArray(JSON.toJSONString(docs), ServiceEntity.class);
 	}
 	
 	/**
