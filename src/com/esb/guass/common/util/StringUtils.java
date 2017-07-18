@@ -8,6 +8,8 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.httpclient.NameValuePair;
 
+import com.google.common.base.Strings;
+
 public class StringUtils {
 	  /**
      * 将NameValuePairs数组转变为字符串
@@ -90,6 +92,16 @@ public class StringUtils {
      */
     public static String setSqlParam(String sql, Object value){
     	return sql.replaceFirst("[?]", "'"+value+"'");
+    }
+    
+    public static String getJsonMap(String value, String defaultStr){
+    	if(Strings.isNullOrEmpty(value)){
+    		return defaultStr;
+    	} else if(value.equals("null") || value.equals("\"null\"")){
+    		return defaultStr;
+    	} else {
+    		return value;
+    	}
     }
 
 }
