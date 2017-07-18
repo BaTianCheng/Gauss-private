@@ -1,5 +1,9 @@
 package com.esb.guass.common.constant;
 
+import java.util.Properties;
+
+import com.esb.guass.common.util.PropertiesUtils;
+
 /**
  * Mongo常量类
  * @author wicks
@@ -7,24 +11,38 @@ package com.esb.guass.common.constant;
 public class MongoConstant {
 	
 	/**
+	 * 配置文件路径
+	 */
+	private static String XMLPATH = "conf/mongo.properties";
+	
+	//初始化属性
+	static {
+		Properties properties = PropertiesUtils.getProperties(XMLPATH);
+		IP = properties.getProperty("IP");
+		PORT = Integer.valueOf(properties.getProperty("PORT"));
+		USERNAME = properties.getProperty("USERNAME");
+		PASSWORD = properties.getProperty("PASSWORD");
+	}
+	
+	/**
 	 * IP地址
 	 */
-	public static String IP = "192.168.70.236";
+	public static String IP;
 	
 	/**
 	 * 端口号
 	 */
-	public static int PORT = 27017;
+	public static int PORT;
 	
 	/**
 	 * 用户名
 	 */
-	public static String USERNAME = "root";
+	public static String USERNAME;
 	
 	/**
 	 * 密码
 	 */
-	public static String PASSWORD = "jinying";
+	public static String PASSWORD;
 	
 	/**
 	 * 最大连接数
