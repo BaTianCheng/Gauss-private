@@ -166,6 +166,32 @@ public class MongoDAO{
     }
     
     /**
+     * 更新
+     * @param dbName
+     * @param collectionName
+     * @param filter
+     * @param update
+     * @return
+     */
+    public UpdateResult update(String dbName, String collectionName, Bson filter, Document update) {  
+    	MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
+        UpdateResult result = dbCollection.replaceOne(filter, update);  
+        return result;  
+    } 
+  
+
+    /**
+     * 删除
+     * @param dbName
+     * @param collectionName
+     * @param filter
+     */
+    public void delete(String dbName, String collectionName, Bson filter) {  
+    	MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
+    	dbCollection.deleteMany(filter);  
+    }
+    
+    /**
      * 查询所有文档 
      * @param dbName
      * @param collectionName
@@ -175,27 +201,6 @@ public class MongoDAO{
         List<Document> results = new ArrayList<Document>();
         MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
         FindIterable<Document> iterables = dbCollection.find();  
-        MongoCursor<Document> cursor = iterables.iterator();  
-        while (cursor.hasNext()) {  
-            results.add(cursor.next());  
-        }
-        return results;  
-    }  
-    
-    /**
-     * 分页查询文档 
-     * @param dbName
-     * @param collectionName
-     * @return
-     */
-    public List<Document> findAll(String dbName, String collectionName, int pageNum, int pageSize) {  
-        List<Document> results = new ArrayList<Document>();
-        MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
-        if(pageSize<0 || pageNum <0){
-        	pageSize = 0;
-        	pageNum = 0;
-        }
-        FindIterable<Document> iterables = dbCollection.find().skip((pageNum-1)*pageSize);  
         MongoCursor<Document> cursor = iterables.iterator();  
         while (cursor.hasNext()) {  
             results.add(cursor.next());  
@@ -222,7 +227,7 @@ public class MongoDAO{
     }
     
     /**
-     * 按条件查询(排序)
+     * 按条件查询
      * @param dbName
      * @param collectionName
      * @param filter
@@ -249,7 +254,7 @@ public class MongoDAO{
     public List<Document> findBy(String dbName, String collectionName, Bson filter,  int pageNum, int pageSize) {
         List<Document> results = new ArrayList<Document>();
         MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
-        FindIterable<Document> iterables = dbCollection.find(filter).skip((pageNum-1)*pageSize);
+        FindIterable<Document> iterables = dbCollection.find(filter).skip((pageNum-1)*pageSize).limit(pageSize);
         MongoCursor<Document> cursor = iterables.iterator();  
         while (cursor.hasNext()) {  
             results.add(cursor.next());  
@@ -258,7 +263,7 @@ public class MongoDAO{
     }  
   
     /**
-     * 按条件查询(排序)
+     * 按条件查询
      * @param dbName
      * @param collectionName
      * @param filter
@@ -267,8 +272,8 @@ public class MongoDAO{
     public List<Document> findBy(String dbName, String collectionName, Bson filter, Bson sort,  int pageNum, int pageSize) {
         List<Document> results = new ArrayList<Document>();
         MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
-        FindIterable<Document> iterables = dbCollection.find(filter).sort(sort).skip((pageNum-1)*pageSize);
-        MongoCursor<Document> cursor = iterables.iterator();  
+        FindIterable<Document> iterables = dbCollection.find(filter).sort(sort).skip((pageNum-1)*pageSize).limit(pageSize);
+        MongoCursor<Document> cursor = iterables.iterator();
         while (cursor.hasNext()) {  
             results.add(cursor.next());  
         }  
@@ -276,29 +281,14 @@ public class MongoDAO{
     }  
     
     /**
-     * 更新
+     * 获取条数
      * @param dbName
      * @param collectionName
      * @param filter
-     * @param update
      * @return
      */
-    public UpdateResult update(String dbName, String collectionName, Bson filter, Document update) {  
-    	MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
-        UpdateResult result = dbCollection.replaceOne(filter, update);  
-        return result;  
-    } 
-  
-
-    /**
-     * 删除
-     * @param dbName
-     * @param collectionName
-     * @param filter
-     */
-    public void delete(String dbName, String collectionName, Bson filter) {  
-    	MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
-    	dbCollection.deleteMany(filter);  
-    }
-
+    public long count(String dbName, String collectionName, Bson filter) {
+        MongoCollection<Document> dbCollection = getCollection(dbName, collectionName);
+        return dbCollection.count(filter);
+    }  
 }

@@ -72,7 +72,7 @@ public class HttpProxyServlet extends BaseSerlvet {
 	    		}
 	    		
 	    		requestEntity.setAsync(req.getBooleanParameter("async", true));
-	    		requestEntity.setRequestIP(req.getHost());
+	    		requestEntity.setRequestIP(req.getRemoteAddr());
 	    		requestEntity.setRequestTime(req.getCreatetime());
 	    		
 	    		requestEntity.setStatus(StatusConstant.CODE_1201);

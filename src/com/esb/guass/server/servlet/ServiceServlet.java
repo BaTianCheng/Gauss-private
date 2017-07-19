@@ -31,7 +31,6 @@ public class ServiceServlet extends BaseSerlvet {
     		this.writeErrorResult(resp, StatusConstant.CODE_400, StatusConstant.CODE_400_MSG, null);
     	} else {
     		String serviceCode = req.getParameter("serviceCode");
-    		
     		//解析参数(多参数数组形式只解析第一个参数，如a=1&a=2，只解析a=1)
     		Map<String, String> params = new HashMap<>();
     		if(!Strings.isNullOrEmpty(req.getParameter("data"))){
@@ -71,7 +70,11 @@ public class ServiceServlet extends BaseSerlvet {
     			}else if(entity.getStatus().equals(StatusConstant.CODE_1203)){
     				this.writeText(resp, entity.getResult(), entity.getResponseHeaders());
     			} else {
-    				this.writeSuccessResult(resp, null, StatusConstant.CODE_201_MSG, requestEntity.getQuestId());
+    				if(Strings.isNullOrEmpty(entity.getResponseErrorMsg())){
+    					this.writeErrorResult(resp, requestEntity.getStatus(), "结果无法返回", requestEntity.getQuestId());
+    				} else {
+    					this.writeText(resp, entity.getResult(), entity.getResponseHeaders());
+    				}
     			}
     		}
     	}

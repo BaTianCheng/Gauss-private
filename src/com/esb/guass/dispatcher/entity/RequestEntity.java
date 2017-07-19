@@ -25,6 +25,16 @@ public class RequestEntity {
 	private String requestType = ConfigConstant.HTTP;
 	
 	/**
+	 * 请求的服务编码
+	 */
+	private String serviceCode;
+	
+	/**
+	 * 请求的服务名称
+	 */
+	private String serviceName;
+	
+	/**
 	 * 请求路径
 	 */
 	private String url;
@@ -38,6 +48,11 @@ public class RequestEntity {
 	 * 异步标志
 	 */
 	private boolean async = true;
+	
+	/**
+	 * 是否直接返回结果（同步时无效）
+	 */
+	private boolean directReturn = false;
 	
 	/**
 	 * 状态
@@ -99,6 +114,16 @@ public class RequestEntity {
 	 */
 	private Header[] responseHeaders;
 	
+	/**
+	 * 返回的内容格式（仅限直接返回）
+	 */
+	private String responseContentType;
+	
+	/**
+	 * 返回的错误信息（仅限直接返回）
+	 */
+	private String responseErrorMsg;
+	
 	public String getQuestId() {
 		return questId;
 	}
@@ -113,6 +138,22 @@ public class RequestEntity {
 
 	public void setRequestType(String requestType) {
 		this.requestType = requestType;
+	}
+
+	public String getServiceCode() {
+		return serviceCode;
+	}
+
+	public void setServiceCode(String serviceCode) {
+		this.serviceCode = serviceCode;
+	}
+	
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
 	}
 
 	public String getUrl() {
@@ -137,6 +178,14 @@ public class RequestEntity {
 
 	public void setAsync(boolean async) {
 		this.async = async;
+	}
+
+	public boolean isDirectReturn() {
+		return directReturn;
+	}
+
+	public void setDirectReturn(boolean directReturn) {
+		this.directReturn = directReturn;
 	}
 
 	public String getStatus() {
@@ -238,6 +287,22 @@ public class RequestEntity {
 
 	public void setResponseHeaders(Header[] responseHeaders) {
 		this.responseHeaders = responseHeaders;
+	}
+
+	public String getResponseContentType() {
+		return responseContentType;
+	}
+
+	public void setResponseContentType(String responseContentType) {
+		this.responseContentType = responseContentType;
+	}
+
+	public String getResponseErrorMsg() {
+		return responseErrorMsg;
+	}
+
+	public void setResponseErrorMsg(String responseErrorMsg) {
+		this.responseErrorMsg = responseErrorMsg;
 	}
 
 	@Override

@@ -15,4 +15,7 @@ public class ConfigConstant {
 	//请求类型
 	public static String HTTP = "HTTP";
 	public static String API = "API";
+	
+	//权限凭据
+	public static String IDENTIFICATION_SYS_JOB = "SYS_JOB";
 }

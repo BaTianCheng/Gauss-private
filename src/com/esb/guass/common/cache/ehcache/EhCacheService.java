@@ -40,7 +40,8 @@ public class EhCacheService {
 	 * 缓存初始化
 	 */
 	public static void init(){
-		manager = CacheManager.create(XMLPATH);
+		String userDir = System.getProperty("user.dir");
+		manager = CacheManager.create(userDir+"/"+XMLPATH);
 		
 		//加载所有服务入缓存
 		List<ServiceEntity> serviceEntities = ServiceMangerService.findAll();

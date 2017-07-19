@@ -41,7 +41,6 @@ public class ResultServlet extends BaseSerlvet {
     			}
     		} else {
     			//根据businessId获取数据
-    			
     		}
     	}
     }

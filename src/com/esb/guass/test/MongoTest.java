@@ -1,6 +1,13 @@
 package com.esb.guass.test;
 
-import com.esb.guass.dispatcher.service.TrackService;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.esb.guass.dispatcher.entity.RequestCondition;
+import com.esb.guass.dispatcher.service.RequestService;
 
 public class MongoTest {
 	public static void main(String[] args) {
@@ -48,8 +55,36 @@ public class MongoTest {
 		*/
 		//System.out.println(RequestService.findAll().get(0).getQuestId());
 		//System.out.println(RequestService.find("51c965bb-f01f-40ae-b4f6-70fbc28d6a01").getResult());
+//		RequestCondition c = new RequestCondition();
+//		c.setStatus("1203");
+//		System.out.println(RequestService.findPages(c));
 		
-		System.out.println(TrackService.find("8ebc4571-59ae-4dac-9dd9-a3ee71c124b7"));
+		String driver = "oracle.jdbc.driver.OracleDriver";
+	    String url = "jdbc:oracle:thin:@192.168.70.10:1521:orcltest";
+	    String username = "rgcms";
+	    String password = "oratest";
+	    Connection conn = null;
+	    try {
+	        Class.forName(driver); //classLoader,加载对应驱动
+	        conn = (Connection) DriverManager.getConnection(url, username, password);
+	        PreparedStatement pstmt;
+	        pstmt = (PreparedStatement) conn.prepareStatement("select  current_billno  from  s_billno_current_pub t where t.bill_type = 'CRD_REGISTER_IDCARD' and t.params='-' for update");
+	        ResultSet rs = pstmt.executeQuery();
+	        pstmt = (PreparedStatement) conn.prepareStatement("update s_billno_current_pub t set t.current_billno = '0000000293' where t.bill_type ='CRD_REGISTER_IDCARD' and t.params ='-'");
+	        pstmt.execute();
+	        
+	        rs.close();
+	        pstmt.close();
+//	        conn.close();
+	    } catch (ClassNotFoundException e) {
+	        e.printStackTrace();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+		
+	    while(true){
+	    	
+	    }
 		
 	}
 }

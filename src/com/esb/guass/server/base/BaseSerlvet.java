@@ -16,7 +16,6 @@ import org.redkale.net.http.HttpServlet;
 
 import com.esb.guass.common.constant.ConfigConstant;
 import com.esb.guass.common.constant.StatusConstant;
-import com.esb.guass.common.util.DateTimeUtils;
 import com.esb.guass.dispatcher.entity.RequestEntity;
 import com.esb.guass.dispatcher.service.RequestService;
 import com.esb.guass.server.entity.ResponseResult;
@@ -55,9 +54,10 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
     public void preExecute(final HttpRequest request, final HttpResponse response, HttpServlet next) throws IOException {
     	//记录所有请求
         if (info) response.setRecycleListener((req, resp) -> {
-        	if(!req.getRequestURI().contains("/results/tracks/get")){
+        	if(!req.getRequestURI().contains("/results/tracks/get") && !req.getRequestURI().contains("/results/list")){
         		long e = System.currentTimeMillis() - request.getCreatetime();
-        		logger.info("["+request.getCreatetime()+"]请求耗时" + e + " 毫秒. 请求为: " + req);
+        		logger.info("["+request.getCreatetime()+"]请求耗时" + e + " 毫秒. 请求为: " + req 
+        				+"\r\n响应为: "+resp.getOutput());
         	}
         });
         next.execute(request, response);
@@ -134,6 +134,8 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
     				resp.addHeader(header.getName(), header.getValue());
     			}
     		}
+    	} else {
+    		resp.setHeader("content-type", "application/json; charset=utf-8");
     	}
 		resp.finish(data);
     }
@@ -145,15 +147,15 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
      */
     public RequestEntity getSyncResult(String questId){
     	RequestEntity entity = null;
-    	int beiginTime = DateTimeUtils.getCurrentTimeStamp();
-		while((beiginTime-DateTimeUtils.getCurrentTimeStamp()) < ConfigConstant.RETURNRESULTDATA_MAXTIME){
+    	long beiginTime = System.currentTimeMillis();
+		while((beiginTime-System.currentTimeMillis()) < ConfigConstant.RETURNRESULTDATA_MAXTIME){
 			try {
 				Thread.sleep(ConfigConstant.RETURNRESULTDATA_INTERVAL);
 			} catch (InterruptedException e) {
 				break;
 			}
 			entity = RequestService.find(questId);
-			if(entity.getStatus().equals(StatusConstant.CODE_1203)){
+			if((!entity.getStatus().equals(StatusConstant.CODE_1201))&&(!entity.getStatus().equals(StatusConstant.CODE_1202))){
 				return entity;
 			}
 		}

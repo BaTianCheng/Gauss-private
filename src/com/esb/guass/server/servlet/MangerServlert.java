@@ -10,8 +10,10 @@ import org.redkale.net.http.HttpResponse;
 import org.redkale.net.http.WebServlet;
 
 import com.esb.guass.common.constant.StatusConstant;
+import com.esb.guass.dispatcher.entity.RequestCondition;
 import com.esb.guass.dispatcher.entity.ServiceEntity;
 import com.esb.guass.dispatcher.service.RequestQueue;
+import com.esb.guass.dispatcher.service.RequestService;
 import com.esb.guass.dispatcher.service.ServiceMangerService;
 import com.esb.guass.server.base.BaseSerlvet;
 import com.google.common.base.Strings;
@@ -48,7 +50,26 @@ public class MangerServlert extends BaseSerlvet {
     		List<ServiceEntity> entitys = ServiceMangerService.findByModule(req.getParameter("module"));
     		this.writeSuccessResult(resp, entitys);	
     	}
+    }
+    
+    /**
+     * 获取请求列表
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
+    @AuthIgnore
+    @WebMapping(url = "/manger/requests/list", comment = "获取请求列表")
+    public void getRequests(HttpRequest req, HttpResponse resp) throws IOException {
+    	RequestCondition condition = req.getJsonParameter(RequestCondition.class, "condition"); //获取参数
+    	if(!Strings.isNullOrEmpty(req.getParameter("pageNum"))){
+    		condition.setPageNum(req.getIntParameter("pageNum", 1));
+    	}
+    	if(!Strings.isNullOrEmpty(req.getParameter("pageSize"))){
+    		condition.setPageSize(req.getIntParameter("pageSize", 0));
+    	}
     	
+    	this.writeSuccessResult(resp, RequestService.findPages(condition));	
     }
 
 }
