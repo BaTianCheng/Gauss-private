@@ -2,6 +2,8 @@ package com.esb.guass.server.base;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,11 +16,15 @@ import org.redkale.net.http.HttpRequest;
 import org.redkale.net.http.HttpResponse;
 import org.redkale.net.http.HttpServlet;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.esb.guass.common.constant.ConfigConstant;
 import com.esb.guass.common.constant.StatusConstant;
+import com.esb.guass.common.util.LogUtils;
 import com.esb.guass.dispatcher.entity.RequestEntity;
 import com.esb.guass.dispatcher.service.RequestService;
 import com.esb.guass.server.entity.ResponseResult;
+import com.google.common.base.Strings;
 
 /**
  * Serlvet基类
@@ -56,8 +62,10 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
         if (info) response.setRecycleListener((req, resp) -> {
         	if(!req.getRequestURI().contains("/results/tracks/get") && !req.getRequestURI().contains("/results/list")){
         		long e = System.currentTimeMillis() - request.getCreatetime();
-        		logger.info("["+request.getCreatetime()+"]请求耗时" + e + " 毫秒. 请求为: " + req 
-        				+"\r\n响应为: "+resp.getOutput());
+        		if(req.getRequestURI().contains("/services/get")){
+	        		logger.info("["+request.getCreatetime()+"]请求耗时" + e + " 毫秒. 请求为: " + req 
+	        				+"\r\n响应为: "+resp.getOutput());
+        		}
         	}
         });
         next.execute(request, response);
@@ -119,6 +127,36 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
     }
     
     /**
+     * 失败输出(判断是否有指定输出格式)
+     * @param resp
+     * @param code
+     * @param msg
+     * @param data
+     */
+    public void writeErrorResult(HttpResponse resp, String code, String msg, RequestEntity entity){
+    	if(Strings.isNullOrEmpty(entity.getResponseErrorMsg())){
+    		writeErrorResult(resp, code, msg, entity.getResult());
+    	} else {
+    		try{
+	    		JSONObject jsonObj = JSON.parseObject(entity.getResponseErrorMsg());
+	    		Map<String, String> map = new HashMap<>();
+	    		if(jsonObj.containsKey("code")){
+	    			map.put(jsonObj.getString("statusCode"), jsonObj.getString("code"));
+	    		} else {
+	    			map.put(jsonObj.getString("statusCode"), code);
+	    		}
+	    		map.put(jsonObj.getString("message"), msg);
+	    		resp.addHeader("Access-Control-Allow-Origin", "*");
+	        	resp.finishJson(map);
+    		}
+    		catch(Exception ex){
+    			LogUtils.error("自定义错误码解析错误", ex);
+    			writeErrorResult(resp, code, msg, entity.getResult());
+    		}
+    	}
+    }
+    
+    /**
      * 直接返回结果
      * @param resp
      * @param data
@@ -148,7 +186,7 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
     public RequestEntity getSyncResult(String questId){
     	RequestEntity entity = null;
     	long beiginTime = System.currentTimeMillis();
-		while((beiginTime-System.currentTimeMillis()) < ConfigConstant.RETURNRESULTDATA_MAXTIME){
+		while((System.currentTimeMillis() - beiginTime) < ConfigConstant.RETURNRESULTDATA_MAXTIME){
 			try {
 				Thread.sleep(ConfigConstant.RETURNRESULTDATA_INTERVAL);
 			} catch (InterruptedException e) {
@@ -161,4 +199,37 @@ public class BaseSerlvet extends org.redkale.net.http.HttpBaseServlet {
 		}
 		return entity;
     }
+    
+    /**
+     * 结果输出
+     * @param requestEntity
+     * @param resp
+     */
+    public void writeRequestResult(RequestEntity requestEntity, HttpResponse resp){
+    	
+    	//判断是否为空
+		if(requestEntity == null){
+			this.writeErrorResult(resp, StatusConstant.CODE_310, StatusConstant.CODE_310_MSG, requestEntity);
+			return;
+		}
+    	
+    	//判断是否异步
+		if(requestEntity.isAsync()){
+			this.writeSuccessResult(resp, null, StatusConstant.CODE_200_MSG, requestEntity.getQuestId());
+		} else {
+			RequestEntity entity = getSyncResult(requestEntity.getQuestId());
+			if(entity == null){
+				this.writeErrorResult(resp, StatusConstant.CODE_500, StatusConstant.CODE_500_MSG, requestEntity);
+			}else if(entity.getStatus().equals(StatusConstant.CODE_1203)){
+				this.writeText(resp, entity.getResult(), entity.getResponseHeaders());
+			} else {
+				if(Strings.isNullOrEmpty(entity.getResponseErrorMsg())){
+					this.writeErrorResult(resp, requestEntity.getStatus(), "结果无法返回", requestEntity);
+				} else {
+					this.writeText(resp, entity.getResult(), entity.getResponseHeaders());
+				}
+			}
+		}
+    }
+    
 }

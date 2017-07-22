@@ -17,7 +17,8 @@ public class MongoConstant {
 	
 	//初始化属性
 	static {
-		Properties properties = PropertiesUtils.getProperties(XMLPATH);
+		String userDir = System.getProperty("user.dir");
+		Properties properties = PropertiesUtils.getProperties(userDir+"/"+XMLPATH);
 		IP = properties.getProperty("IP");
 		PORT = Integer.valueOf(properties.getProperty("PORT"));
 		USERNAME = properties.getProperty("USERNAME");

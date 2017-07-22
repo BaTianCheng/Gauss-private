@@ -47,9 +47,14 @@ public class HttpProxyServlet extends BaseSerlvet {
 	    		requestEntity.setRequestOption(parseRequestOption(req));
 	    		
 	        	if(!Strings.isNullOrEmpty(req.getParameter("data"))){
-	    			@SuppressWarnings("unchecked")
-	    			Map<String, String> params = JSON.parseObject(req.getParameter("data"), HashMap.class);
-	        		requestEntity.setParams(params);
+	        		try{
+		    			@SuppressWarnings("unchecked")
+		    			Map<String, String> params = JSON.parseObject(req.getParameter("data"), HashMap.class);
+		        		requestEntity.setParams(params);
+	        		}
+	    			catch(Exception ex){
+	    				this.writeErrorResult(resp, StatusConstant.CODE_400, StatusConstant.CODE_400_MSG, null);
+	    			}
 	    		}
 	        	if(!Strings.isNullOrEmpty(req.getParameter("getResultData"))){
 	        		requestEntity.setAsync(Boolean.valueOf(req.getParameter("getResultData")));
@@ -83,19 +88,7 @@ public class HttpProxyServlet extends BaseSerlvet {
     		RequestService.insert(requestEntity);
     		RequestQueue.add(requestEntity);
     		
-    		//判断是否立刻返回结果
-    		if(requestEntity.isAsync()){
-    			this.writeSuccessResult(resp, null, StatusConstant.CODE_200_MSG, requestEntity.getQuestId());
-    		} else {
-    			RequestEntity entity = getSyncResult(requestEntity.getQuestId());
-    			if(entity == null){
-    				this.writeErrorResult(resp, StatusConstant.CODE_500, StatusConstant.CODE_500_MSG, requestEntity);
-    			}else if(entity.getStatus().equals(StatusConstant.CODE_1203)){
-    				this.writeText(resp, entity.getResult(), entity.getResponseHeaders());
-    			} else {
-    				this.writeSuccessResult(resp, null, StatusConstant.CODE_201_MSG, requestEntity.getQuestId());
-    			}
-    		}
+    		this.writeRequestResult(requestEntity, resp);
     	}
     }
     
